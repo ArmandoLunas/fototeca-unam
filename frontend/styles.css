@@ -22,23 +22,23 @@ body {
 }
 
 .escudo {
-    width: 150px;
+    width: 120px;
     height: auto;
     margin-right: 20px;
 }
 
 h1 {
     color: white;
-    font-size: 80px;
+    font-size: 60px;
 }
 
 .logo-fototeca img {
-    width: 320px; /* Deja el tamaño adecuado para el logo */
+    width: 200px; /* Deja el tamaño adecuado para el logo */
 }
 
 .main-image {
     width: 100%;
-    padding: 100px;
+    padding: 60px;
     overflow: hidden;
 }
 
@@ -51,29 +51,45 @@ h1 {
 
 
 .gallery {
-    text-align: center;
+    text-align: left;
     padding: 20px;
+    padding-left: 40px;
 }
 
 .gallery h2 {
-    font-size: 24px;
+    padding-left: 100px;
+    font-size: 42px;
     margin-bottom: 20px;
 }
 
 .images {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+   /* display: grid;
+    grid-template-columns: repeat(4, 1fr);
     gap: 10px;
+    column-gap: 20px;
+*/
+    }
+
+.image-item {
+    flex: 0 0 20%; /* 4 imágenes por fila con espacio entre ellas */
+    box-sizing: border-box;
+    text-align: center;
 }
 
 .image-item img {
-    width: 100%;
-    height: auto;
+    border-radius: 15px;
+    width: 300px;
+    height: auto;  
 }
 
 .footer-top {
     display: flex;
-    justify-content: space-between;
+    justify-content:center;
+    gap: 30px;
     align-items: center;
     background-color: #4f6367; /* Azul grisáceo */
     padding: 20px;
@@ -81,12 +97,13 @@ h1 {
 }
 
 .footer-logo img {
-    width: 40px; /* Tamaño adecuado para el escudo UNAM */
+    width: 100px; /* Tamaño adecuado para el escudo UNAM */
 }
 
 .footer-bottom {
     background-color: black;
     padding: 20px;
+    padding-left: 100px;
     color: white;
-    text-align: center;
+    text-align:left;
 }
