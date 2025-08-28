@@ -213,7 +213,7 @@ h1 {
     justify-content: center;
     gap: 20px;
     align-items: center;
-    background-color: #4f6367; /* Azul grisáceo */
+    background-color: #4E5F6F; /* Azul grisáceo */
     padding: 20px;
     color: white;
 }
@@ -223,9 +223,35 @@ h1 {
 }
 
 .footer-bottom {
-    background-color: black;
+    background-color: #262A2E;
     padding: 20px;
     color: white;
     text-align: left;
     padding-left: 80px;
+}
+
+/* Estilos para pag-dest */
+.page-content {
+    text-align: center;
+    padding: 40px;
+}
+
+.page-content h2 {
+    font-size: 36px;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.page-content p {
+    font-size: 18px;
+    color: #444;
+    margin-top: 15px;
+}
+
+.img-detail {
+    max-width: 600px;
+    width: 100%;
+    border-radius: 10px;
+    display: block;
+    margin: 20px auto;
 }

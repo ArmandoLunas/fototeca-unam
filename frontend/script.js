@@ -35,16 +35,29 @@ function expandImage(element) {
     const expandedImage = document.getElementById('expanded-img');
     const modalTitle = document.querySelector('.modal-title');
     const modalDescription = document.querySelector('.modal-description p');
+    const seeMoreLink = document.getElementById('see-more-link');
 
     // Si es imagen directa (carrusel), usarla; si es contenedor (galería), buscar el <img>
     let img = element.tagName === 'IMG' ? element : element.querySelector('img');
 
-    expandedImage.src = img.src;
+    const src = img.src;
+    const title = img.getAttribute('data-title') || img.alt || 'Sin título';
+    const desc = img.getAttribute('data-description') || 'Sin descripción';
+
+    expandedImage.src = src;
+    modalTitle.textContent = title;
+    modalDescription.textContent = desc;
+
+    /*expandedImage.src = img.src;
     modalTitle.textContent = img.getAttribute('data-title') || img.alt || 'Sin título';
     modalDescription.textContent = img.getAttribute('data-description') || 'Sin descripción';
+    */
+
+    seeMoreLink.href = `pag-dest.html?src=${encodeURIComponent(src)}&title=${encodeURIComponent(title)}&desc=${encodeURIComponent(desc)}`;
 
     modal.style.display = 'block';
     document.body.style.overflow = 'hidden';
+
 }
 
 // Cerrar el modal
@@ -68,3 +81,25 @@ window.addEventListener('keydown', function(e) {
         closeModal();
     }
 });
+
+// Generar información en pag-dest
+function loadImageDetails() {
+  const imgDetail = document.getElementById("img-detail");
+  const imgTitle = document.getElementById("img-title");
+  const imgDesc = document.getElementById("img-desc");
+
+  if (!imgDetail || !imgTitle || !imgDesc) return;
+
+  const params = new URLSearchParams(window.location.search);
+  const src = params.get("src");
+  const title = params.get("title");
+  const desc = params.get("desc");
+
+  if (src) imgDetail.src = src;
+  else imgDetail.style.display = "none";
+
+  imgTitle.textContent = title || "No image selected";
+  imgDesc.textContent = desc || "No description available";
+}
+
+window.addEventListener("DOMContentLoaded", loadImageDetails);
