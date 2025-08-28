@@ -211,15 +211,40 @@ h1 {
 .footer-top {
     display: flex;
     justify-content: center;
-    gap: 20px;
     align-items: center;
     background-color: #4E5F6F; /* Azul grisáceo */
     padding: 20px;
     color: white;
+    font-size: 13px;
+}
+
+.footer-top-content {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 100px;
+}
+
+.footer-logo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
 }
 
 .footer-logo img {
     width: 80px; /* Tamaño adecuado para el escudo UNAM */
+    margin-bottom: 8px;
+}
+
+.unam-text {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.unam-text p {
+    padding: 5px;
 }
 
 .footer-bottom {
@@ -228,6 +253,16 @@ h1 {
     color: white;
     text-align: left;
     padding-left: 80px;
+}
+
+.footer-copyright {
+    text-align: justify;
+}
+
+.footer-copyright p{
+    font-size: 14px;
+    color: #cbced1;
+    padding: 3px;
 }
 
 /* Estilos para pag-dest */
@@ -260,7 +295,7 @@ h1 {
 .text-container {
     padding-left: 100px;
     padding-right: 100px;
-    text-align: center;
+    text-align: justify;
 }
 
 .text {
