@@ -23,8 +23,18 @@
     <!-- Carrusel de imágenes -->
     <div class="carousel">
         <div class="carousel-images">
-            <img src="images/galeria/cu.jpg" alt="Imagen principal" class="carousel-item">
-            <img src="images/galeria/cu1.png" alt="Imagen secundaria" class="carousel-item">
+            <img src="images/galeria/cu.jpg"
+                alt="Imagen principal"
+                class="carousel-item"
+                onclick="expandImage(this)"
+                data-title="Ciudad Universitaria"
+                data-description="Vista aérea de Ciudad Universitaria, UNAM.">
+            <img src="images/Facultad_de_Arquitectura.jpg"
+                alt="Imagen secundaria"
+                class="carousel-item"
+                onclick="expandImage(this)"
+                data-title="Facultad de Arquitectura"
+                data-description="Edificio principal de la Facultad de Arquitectura.">
         </div>
         <div class="carousel-dots">
             <span class="dot"></span>
@@ -34,19 +44,35 @@
 
     <!-- Galería -->
     <section class="gallery">
-        <h2>Galería</h2>
+        <h2>Laboratorios</h2>
         <div class="images">
             <div class="image-item" onclick="expandImage(this)">
-                <img src="images/galeria/cu1.png" alt="Imagen 1">
-                <p>lorem</p>
+                <img src="images/galeria/labs-d.jpg"
+                    alt="Imagen 1"
+                    data-title="Laboratorio de Termofluidos"
+                    data-description="Laboratorio D: Investigación y desarrollo.">
+                <p>Laboratorio de Termofluidos</p>
             </div>
             <div class="image-item" onclick="expandImage(this)">
-                <img src="images/LogoFototecaBlancoyNegro2.svg" alt="Imagen 2">
-                <p>lorem</p>
+                <img src="images/galeria/Automatizacion.jpg"
+                    alt="Imagen 2"
+                    data-title="Automatización"
+                    data-description="Laboratorio de Automatización y Robótica.">
+                <p>Laboratorio de Automatizacion</p>
             </div>
             <div class="image-item" onclick="expandImage(this)">
-                <img src="images/LogoFototecaBlancoyNegro2.svg" alt="Imagen 3">
-                <p>lorem</p>
+                <img src="images/galeria/ios-lab.png" 
+                    alt="Imagen 3"
+                    data-title="Laboratorio iOS"
+                    data-description="Laboratorio de desarrollo para dispositivos iOS.">
+                <p>Laboratorio iOS</p>
+            </div>
+            <div class="image-item" onclick="expandImage(this)">
+                <img src="images/galeria/salab3-lab.png" 
+                    alt="Imagen 4"
+                    data-title="Sala B"
+                    data-description="Laboratorio de computación.">
+                <p>Sala B</p>
             </div>
         </div>
     </section>
@@ -54,15 +80,14 @@
     <!-- Modal para imagen expandida -->
     <div id="image-modal" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="closeModal()">&times;</span>
-            <img id="expanded-img" src="" alt="Imagen expandida">
-            <div class="modal-title">
-                <h2 id="modal-title">Título de la imagen</h2>
-
-            </div>
-            <div class="modal-description">
-                <p id="modal-description">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-                <a href="pag-dest.html">ver más +</a>
+            <div class="modal-img-container">
+                <img id="expanded-img" src="" alt="Imagen expandida">
+                <span class="modal-title">Título</span>
+                <div class="modal-description">
+                    <p id="modal-description">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                    <a href="pag-dest.html">ver más +</a>
+                </div>
+                <span class="close" onclick="closeModal()">&times;</span>
             </div>
         </div>
     </div>

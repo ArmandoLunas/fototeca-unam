@@ -13,12 +13,14 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px;
+    padding: 0px;
+    padding-right: 100px;
 }
 
 .logo-container {
     display: flex;
     align-items: center;
+    padding-left: 120px;
 }
 
 .escudo {
@@ -33,7 +35,7 @@ h1 {
 }
 
 .logo-fototeca img {
-    width: 200px; /* Deja el tamaño adecuado para el logo */
+    width: 250px; /* Deja el tamaño adecuado para el logo */
 }
 
 .carousel {
@@ -41,12 +43,13 @@ h1 {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 80px;
+    padding: 30px;
 }
 
 .carousel-images {
-    width: 1000px;
-    height: 600px;
+    width: 1250px;
+    height: 700px;
+    border-radius: 15px;
     overflow: hidden;
 }
 
@@ -55,6 +58,7 @@ h1 {
     height: 100%;
     object-fit: cover;
     display: none;
+    cursor: pointer;
 }
 
 .carousel-dots {
@@ -68,14 +72,14 @@ h1 {
     width: 10px;
     height: 10px;
     margin: 0 5px;
-    background-color: white;
+    background-color: rgb(173, 166, 166);
     border-radius: 50%;
     display: inline-block;
     cursor: pointer;
 }
 
 .dot.active {
-    background-color: #4f6367;
+    background-color: #3d4e52;
 }
 
 .gallery {
@@ -106,7 +110,8 @@ h1 {
 .image-item img {
     border-radius: 15px;
     width: 300px;
-    height: auto;
+    height: 200px;
+    object-fit: cover;
     cursor: pointer;
 }
 
@@ -122,20 +127,49 @@ h1 {
 }
 
 .modal-content {
-    position: relative;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     margin: 0 auto;
     padding: 0;
     background-color: transparent;
     width: 80%;
     max-width: 900px;
-    height: 80vh;
+    height: auto;
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    overflow: visible;
+}
+
+.modal-img-container {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: stretch;
     justify-content: center;
     overflow: hidden;
 }
 
-.modal img {
+.modal-img-container::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    border-radius: 10px;
+    pointer-events: none;
+    z-index: 1;
+    background: linear-gradient(
+        to bottom,
+        rgba(0,0,0,1.58) 0%,      /* arriba */
+        rgba(0,0,0,0) 30%,        /* centro transparente */
+        rgba(0,0,0,0) 70%,        /* centro transparente */
+        rgba(0,0,0,1.58) 100%     /* abajo */
+    );
+}
+
+.modal-img-container img {
     width: 100%;
     height: auto;
     object-fit: cover;
@@ -162,14 +196,17 @@ h1 {
     text-shadow: 1px 1px 8px rgba(0,0,0,0.7);
     z-index: 2;
     margin-top: 0;
+    text-align: right;
 }
 
 .close {
     position: absolute;
-    top: 10px;
+    color: white;
+    top: 5px;
     right: 10px;
     font-size: 30px;
     cursor: pointer;
+    z-index: 2;
 }
 .footer-top {
     display: flex;
