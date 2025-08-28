@@ -216,20 +216,23 @@ h1 {
 
 .footer-instituciones .images {
     display: flex;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     justify-content: center;
-    gap: 50px;
+    gap: 25px;
 }
 
 .footer-foto {
-    height: 160px;
-    width: auto;
+    flex: 0 1 auto;
     display: flex;
     align-items: center;
+    justify-content: center;
 }
 
 .footer-foto img {
-    height: 145px;
+    max-height: 100px;
+    height: auto;
+    width: auto;
+    object-fit: contain;
 }
 
 .footer-top {
@@ -283,7 +286,7 @@ h1 {
     text-align: justify;
 }
 
-.footer-copyright p{
+.footer-copyright p {
     font-size: 14px;
     color: #cbced1;
     padding: 3px;
