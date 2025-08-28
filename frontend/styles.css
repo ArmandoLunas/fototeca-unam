@@ -208,6 +208,30 @@ h1 {
     cursor: pointer;
     z-index: 2;
 }
+
+.footer-instituciones {
+    padding-top: 200px;
+    padding-bottom: 2px;
+}
+
+.footer-instituciones .images {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: center;
+    gap: 50px;
+}
+
+.footer-foto {
+    height: 160px;
+    width: auto;
+    display: flex;
+    align-items: center;
+}
+
+.footer-foto img {
+    height: 145px;
+}
+
 .footer-top {
     display: flex;
     justify-content: center;
