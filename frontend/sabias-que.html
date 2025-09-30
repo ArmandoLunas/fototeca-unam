@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fototeca</title>
+    <link rel="icon" href="images/LogoFototecaBlancoyNegro2" type="image/Fototeca-icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="sabias-que.css">
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="logo-container">
+            <img src="images/EscudoUNAMBlanco.png" alt="Escudo de la escuela" class="escudo">
+            <h1>Fototeca</h1>
+            <div class="vertical-line"></div>
+            <span class="sabias-que-text">¿Sabías qué?</span>
+        </div>
+        <div class="logo-fototeca">
+            <img src="images/LogoFototecaBlancoyNegro2.svg" alt="Logo de Fototeca">
+        </div>
+    </header>
+
+    <!-- Barra de búsqueda -->
+    <div class="search-container">
+        <input type="text" class="search-bar" placeholder="¿Buscas algún dato curioso?">
+    </div>
+
+    <!-- Carrusel de imágenes -->
+    <div class="carousel">
+        <!-- Flecha izquierda -->
+        <button class="carousel-arrow carousel-arrow-left" onclick="previousSlide()">‹</button>
+        
+        <div class="carousel-content">
+            <div class="carousel-images">
+                <img src="images/galeria/cu.jpg"
+                    alt="Imagen principal"
+                    class="carousel-item"
+                    onclick="expandImage(this)"
+                    data-title="Ciudad Universitaria"
+                    data-description="Vista aérea de Ciudad Universitaria, UNAM."
+                    data-curious="¿Sabías que Ciudad Universitaria fue declarada Patrimonio Cultural de la Humanidad por la UNESCO en 2007?">
+                <img src="images/Facultad_de_Arquitectura.jpg"
+                    alt="Imagen secundaria"
+                    class="carousel-item"
+                    onclick="expandImage(this)"
+                    data-title="Facultad de Arquitectura"
+                    data-description="Edificio principal de la Facultad de Arquitectura."
+                    data-curious="¿Sabías que la Facultad de Arquitectura de la UNAM tiene más de 90 años formando arquitectos?">
+            </div>
+            
+            <!-- Marco para datos curiosos -->
+            <div class="curious-fact-container">
+                <p id="curious-fact">¿Sabías que Ciudad Universitaria fue declarada Patrimonio Cultural de la Humanidad por la UNESCO en 2007?</p>
+            </div>
+        </div>
+        
+        <!-- Flecha derecha -->
+        <button class="carousel-arrow carousel-arrow-right" onclick="nextSlide()">›</button>
+        
+        <div class="carousel-dots">
+            <span class="dot" onclick="currentSlide(1)"></span>
+            <span class="dot" onclick="currentSlide(2)"></span>
+        </div>
+    </div>
+    
+    <!-- Modal para imagen expandida -->
+    <div id="image-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-img-container">
+                <img id="expanded-img" src="" alt="Imagen expandida">
+                <span class="modal-title">Título</span>
+                <div class="modal-description">
+                    <p id="modal-description">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                    <a id="see-more-link" href="pag-dest.html">ver más +</a>
+                </div>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-instituciones">
+            <div class="images">
+                <div class="footer-foto">
+                    <img src="images/instituciones/cuaieed.png" alt="cuiaeed logo">
+                </div>
+                <div class="footer-foto">
+                    <img src="images/instituciones/defensoria.png" alt="defensoria logo">
+                </div>
+                <div class="footer-foto">
+                    <img src="images/instituciones/igualdad.png" alt="igualdad logo">
+                </div>
+                <div class="footer-foto">
+                    <img src="images/instituciones/gaceta.png" alt="gaceta logo">
+                </div>
+                <div class="footer-foto">
+                    <img src="images/instituciones/cultura.png" alt="cultura UNAM logo">
+                </div>
+            </div>
+        </div>
+        <div class="footer-top">
+            <div class="footer-top-content">
+                <div class="footer-logo">
+                    <img src="images/EscudoUNAMBlanco.png" alt="Escudo UNAM">
+                    <p>Aviso de privacidad</p>
+                </div>
+                <div class="unam-text">
+                    <p>UNIVERSIDAD NACIONAL AUTÓNOMA DE MÉXICO</p>
+                    <p>Av. Universidad 3000, Ciudad Universitaria,</p>
+                    <p>Coyoacán, CDMX, cp. 04510</p>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+
+            <div class="footer-copyright">
+                <p>
+                    Universidad Nacional Autónoma de México © 2023 - 2026 Derechos reservados
+                </p>
+
+                <p>
+                    Esta es la página eléctronica institucional de la UNAM. Puede ser reproducida con fines no lucrativos, siempre y cuando no se mutile, se cite la fuente completa y su dirección electrónica.
+                </p>
+
+                <p>
+                    Contiene enlaces con diversos portales de entidades y organizaciones académicas, estudiantiles y profesionales, así como páginas de profesores e investigadores cuyos contenidos son de la responsabilidad exclusiva de sus titulares.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="carrusel-sq.js"></script>
+</body>
+</html>

@@ -34,8 +34,56 @@ h1 {
     font-size: 60px;
 }
 
+/* Agregado por Gus: Estilos para ¿Sabías qué? */
+
+.vertical-line { /* Línea vertical blanca */
+    width: 2px;
+    height: 50px;
+    background-color: white;
+    margin: 0 20px;
+}
+
+/* Estilos para el texto "¿Sabías qué?" */
+.sabias-que-text {
+    color: white;
+    font-family: 'Josefin Sans', Arial, sans-serif;
+    font-size: 24px;
+    font-weight: 400;
+}
+
 .logo-fototeca img {
     width: 250px; /* Deja el tamaño adecuado para el logo */
+}
+
+/* Estilos para la barra de búsqueda */
+.search-container {
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+    margin-top: 10px;
+}
+
+.search-bar {
+    width: 400px;
+    height: 45px;
+    border-radius: 25px;
+    border: none;
+    padding: 0 20px;
+    font-size: 16px;
+    font-family: 'Josefin Sans', Arial, sans-serif;
+    background-color: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    outline: none;
+    color: #666;
+}
+
+.search-bar::placeholder {
+    color: #999;
+    font-style: italic;
+}
+
+.search-bar:focus {
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
 }
 
 .carousel {
