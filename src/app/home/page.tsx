@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { processChatQuery } from '@/app/actions/chat';
 import SectionFrame from '@/components/public/SectionFrame';
 
 export default function HomePage() {
@@ -12,26 +13,47 @@ export default function HomePage() {
 
   const toggleChat = () => setIsChatOpen(!isChatOpen);
 
-  const handleSendMessage = (e: React.FormEvent) => {
+  const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputValue.trim()) return;
 
-    // Add user message
+    // 1. Add user message to UI immediately
     const newUserMsg = { id: Date.now(), text: inputValue, sender: 'user' };
     setMessages((prev) => [...prev, newUserMsg]);
     setInputValue('');
 
-    // Simulate bot reply (optional)
-    setTimeout(() => {
+    // 2. Call the Server Action
+    try {
+      const response = await processChatQuery(newUserMsg.text);
+
+      // 3. Add Bot Response to UI
       setMessages((prev) => [
         ...prev,
-        { id: Date.now() + 1, text: 'Gracias por tu mensaje.', sender: 'bot' }
+        { id: Date.now() + 1, text: response.reply, sender: 'bot' }
       ]);
-    }, 1000);
+
+      // 4. If there is data (links/pdfs), display them as a special "System" message or inside the bot bubble
+      if (response.data && response.data.length > 0) {
+        const resultsText = response.data.map((res: any) =>
+          `📄 ${res.title} (${res.pdfUrl ? 'PDF' : 'Link'})`
+        ).join('\n');
+
+        setMessages((prev) => [
+          ...prev,
+          { id: Date.now() + 2, text: resultsText, sender: 'bot' }
+        ]);
+      }
+
+    } catch (error) {
+      setMessages((prev) => [
+        ...prev,
+        { id: Date.now() + 1, text: "Sorry, I had trouble connecting to the database.", sender: 'bot' }
+      ]);
+    }
   };
 
   return (
-    <div className="relative min-h-screen pb-20"> 
+    <div className="relative min-h-screen pb-20">
       {/* Hero frame */}
       <section className="max-w-5xl mx-auto px-4">
         <div className="mt-8 h-128 rounded-md border border-dashed bg-white shadow-sm flex items-center justify-center text-neutral-500">
@@ -56,11 +78,11 @@ export default function HomePage() {
 
       {/* Chatbot */}
       <div className="fixed bottom-20 right-6 z-50 flex flex-col items-end gap-4">
-        
+
         {/* Chat Window (Apple Style) */}
         {isChatOpen && (
           <div className="w-80 h-96 bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col overflow-hidden transition-all animate-in fade-in slide-in-from-bottom-4">
-            
+
             {/* Header */}
             <div className="bg-white/80 backdrop-blur-md border-b border-gray-100 p-4 flex justify-between items-center sticky top-0 z-10">
               <div>
@@ -85,11 +107,10 @@ export default function HomePage() {
                   className={`flex w-full ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
                   <div
-                    className={`max-w-[80%] px-4 py-2 text-sm shadow-sm ${
-                      msg.sender === 'user'
-                        ? 'bg-[#DC9B4F] text-white rounded-2xl rounded-tr-sm'
-                        : 'bg-gray-100 text-gray-800 rounded-2xl rounded-tl-sm'
-                    }`}
+                    className={`max-w-[80%] px-4 py-2 text-sm shadow-sm ${msg.sender === 'user'
+                      ? 'bg-[#DC9B4F] text-white rounded-2xl rounded-tr-sm'
+                      : 'bg-gray-100 text-gray-800 rounded-2xl rounded-tl-sm'
+                      }`}
                   >
                     {msg.text}
                   </div>
@@ -107,8 +128,8 @@ export default function HomePage() {
                   placeholder="Escribe un mensaje"
                   className="flex-1 bg-transparent border-none focus:ring-0 text-sm text-gray-700 px-3 py-2 placeholder-gray-400 outline-none"
                 />
-                <button 
-                  type="submit" 
+                <button
+                  type="submit"
                   className="w-8 h-8 flex items-center justify-center rounded-full bg-[#DC9B4F] text-white hover:brightness-110 transition-all shadow-sm flex-shrink-0"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 ml-0.5">

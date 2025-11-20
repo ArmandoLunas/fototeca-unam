@@ -24,7 +24,8 @@ model User {
   // next-auth relations
   accounts      Account[]
   sessions      Session[]
-
+  conversations Conversation[]
+  
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
@@ -63,4 +64,49 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+
+model Conversation{
+  id String @id @default(cuid())
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  messages Message[]
+}
+
+model Message{
+  id String @id @default(cuid())
+  conversationId String
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender SenderType
+  content String @db.Text
+  createdAt DateTime @default(now())
+}
+
+enum SenderType {
+  USER
+  BOT
+}
+
+model Resource{
+  id String @id @default(cuid())
+  title String
+  url String?
+  pdfUrl String?
+
+  createdAt DateTime @default(now())
+  categories Category[] @relation("ResourceCategories")
+}
+
+model Category{
+  id String @id @default(cuid())
+  name String @unique
+
+  parentId String?
+  parent Category? @relation("CategoryToCategory", fields: [parentId], references: [id], onDelete: Cascade)
+  children Category[] @relation("CategoryToCategory")
+  resources Resource[] @relation("ResourceCategories")
 }
