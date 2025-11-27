@@ -7,7 +7,12 @@ import SectionFrame from '@/components/public/SectionFrame';
 export default function HomePage() {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [inputValue, setInputValue] = useState('');
-  const [messages, setMessages] = useState([
+  const [messages, setMessages] = useState<Array<{
+    id: number;
+    text: string;
+    sender: string;
+    resources?: Array<{ id: string; title: string; url: string | null; pdfUrl: string | null }>;
+  }>>([
     { id: 1, text: 'Hola, soy PumaHelper. ¿En qué puedo ayudarte?', sender: 'bot' }
   ]);
 
@@ -26,23 +31,16 @@ export default function HomePage() {
     try {
       const response = await processChatQuery(newUserMsg.text);
 
-      // 3. Add Bot Response to UI
+      // 3. Add Bot Response to UI with resources (combined in single message)
       setMessages((prev) => [
         ...prev,
-        { id: Date.now() + 1, text: response.reply, sender: 'bot' }
+        {
+          id: Date.now() + 1,
+          text: response.reply,
+          sender: 'bot',
+          resources: response.data && response.data.length > 0 ? response.data : undefined
+        }
       ]);
-
-      // 4. If there is data (links/pdfs), display them as a special "System" message or inside the bot bubble
-      if (response.data && response.data.length > 0) {
-        const resultsText = response.data.map((res: any) =>
-          `📄 ${res.title} (${res.pdfUrl ? 'PDF' : 'Link'})`
-        ).join('\n');
-
-        setMessages((prev) => [
-          ...prev,
-          { id: Date.now() + 2, text: resultsText, sender: 'bot' }
-        ]);
-      }
 
     } catch (error) {
       setMessages((prev) => [
@@ -112,7 +110,37 @@ export default function HomePage() {
                       : 'bg-gray-100 text-gray-800 rounded-2xl rounded-tl-sm'
                       }`}
                   >
-                    {msg.text}
+                    <div className="whitespace-pre-wrap">{msg.text}</div>
+
+                    {/* Render resources as clickable links */}
+                    {msg.resources && msg.resources.length > 0 && (
+                      <div className="mt-2 space-y-1.5 border-t border-gray-200 pt-2">
+                        {msg.resources.map((resource) => {
+                          const link = resource.pdfUrl || resource.url;
+                          const isPdf = !!resource.pdfUrl;
+
+                          // Skip if no link is available
+                          if (!link) return null;
+
+                          return (
+                            <a
+                              key={resource.id}
+                              href={link}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-2 text-blue-600 hover:text-blue-800 hover:underline transition-colors"
+                            >
+                              <span className="text-base flex-shrink-0">
+                                {isPdf ? '📄' : '🔗'}
+                              </span>
+                              <span className="text-xs font-medium truncate">
+                                {resource.title}
+                              </span>
+                            </a>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}

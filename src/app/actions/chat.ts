@@ -38,7 +38,7 @@ export async function processChatQuery(userMessage: string) {
 
     if (detectedCategories.length === 0) {
         return {
-            reply: "No identifiqué ninguna categoría específica (como Deportes, Fútbol, Reglamentos). ¿Podrías ser más específico?",
+            reply: "No identifiqué ninguna categoría que coincida con tu solicitud. ¿Podrías ser más específico?",
             data: []
         };
     }
@@ -60,10 +60,15 @@ export async function processChatQuery(userMessage: string) {
         }
     });
 
+    // Deduplicate resources by ID (in case of any database quirks)
+    const uniqueResources = Array.from(
+        new Map(resources.map(r => [r.id, r])).values()
+    );
+
     // 4. FORMAT RESPONSE
     const tagNames = detectedCategories.map(c => c.name).join(' + ');
 
-    if (resources.length === 0) {
+    if (uniqueResources.length === 0) {
         return {
             reply: `No encontré recursos para [${tagNames}].`,
             data: []
@@ -71,8 +76,8 @@ export async function processChatQuery(userMessage: string) {
     }
 
     return {
-        reply: `Encontré ${resources.length} resultado(s) para [${tagNames}]:`,
-        data: resources
+        reply: `Encontré ${uniqueResources.length} resultado(s) para [${tagNames}]:`,
+        data: uniqueResources
     };
 }
 
