@@ -44,3 +44,4 @@ next-env.d.ts
 
 # extra
 /docs
+/local_scripts
