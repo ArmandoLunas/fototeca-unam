@@ -1,5 +1,5 @@
 'use client';
-import { useMemo, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { SECTIONS } from '@/lib/sections';
 
 type SectionBlock = {
@@ -9,46 +9,101 @@ type SectionBlock = {
   imagen?: File | null;
 };
 
-export default function NewPostForm({ defaultType }: { defaultType: string }) {
+type InitialBlock = {
+  title: string;
+  content: string;
+  imageUrl?: string | null;
+};
+
+type Props = {
+  defaultType: string;
+  postId?: string; // si existe -> editar
+  initialTitle?: string;
+  initialBlocks?: InitialBlock[];
+};
+
+export default function NewPostForm({ defaultType, postId, initialTitle, initialBlocks }: Props) {
   const [tipo, setTipo] = useState(defaultType);
-  const [titulo, setTitulo] = useState('');
+  const [titulo, setTitulo] = useState(initialTitle ?? '');
   const [bloques, setBloques] = useState<SectionBlock[]>([
     { id: crypto.randomUUID(), tituloSeccion: '', descripcion: '', imagen: null },
   ]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (initialBlocks && initialBlocks.length > 0) {
+      setBloques(
+        initialBlocks.map(b => ({
+          id: crypto.randomUUID(),
+          tituloSeccion: b.title,
+          descripcion: b.content,
+          imagen: null, // las imágenes actuales se conservarán solo por URL, el admin puede subir nuevas
+        }))
+      );
+    }
+  }, [initialBlocks]);
 
   function addBloque() {
-    setBloques(prev => [...prev, { id: crypto.randomUUID(), tituloSeccion: '', descripcion: '', imagen: null }]);
+    setBloques(prev => [
+      ...prev,
+      { id: crypto.randomUUID(), tituloSeccion: '', descripcion: '', imagen: null },
+    ]);
   }
 
   function setImagen(idx: number, file: File | null) {
     setBloques(prev => prev.map((b, i) => (i === idx ? { ...b, imagen: file } : b)));
   }
 
-  const seccionesOptions = useMemo(() => SECTIONS.map(s => s.label), []);
-  const labelToSlug = (label: string) => SECTIONS.find(s => s.label === label)?.slug ?? label;
-
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    // Aquí armarías FormData para subir imágenes si aplica
-    const payload = {
-      tipo: labelToSlug(tipo),
-      titulo,
-      bloques: bloques.map(({ tituloSeccion, descripcion }) => ({ tituloSeccion, descripcion })),
-    };
-    console.log('Payload', payload);
-    alert('Submit pendiente (ver consola).');
-    // await fetch('/api/admin/posts', { method: 'POST', body: JSON.stringify(payload) });
+    setIsSubmitting(true);
+
+    try {
+      const form = new FormData();
+      if (postId) form.append('id', postId);
+      form.append('tipo', tipo);
+      form.append('titulo', titulo);
+
+      const blocksPayload = bloques.map(b => ({
+        title: b.tituloSeccion,
+        content: b.descripcion,
+      }));
+      form.append('blocks', JSON.stringify(blocksPayload));
+
+      bloques.forEach((b, idx) => {
+        if (b.imagen) form.append(`image_${idx}`, b.imagen);
+      });
+
+      const method = postId ? 'PUT' : 'POST';
+
+      const res = await fetch('/api/admin/posts', { method, body: form });
+      const json = await res.json();
+      if (json.ok) {
+        alert(postId ? 'Publicación actualizada' : 'Publicación creada');
+        // Aquí puedes hacer router.push o resetear formulario
+      } else {
+        alert('Error: ' + (json.error || 'unknown'));
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Ocurrió un error al guardar');
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
     <form onSubmit={onSubmit} className="max-w-3xl">
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-2xl text-blue-950 font-semibold">Nueva publicación</h2>
+        <h2 className="text-2xl text-blue-950 font-semibold">
+          {postId ? 'Editar publicación' : 'Nueva publicación'}
+        </h2>
         <button
           type="submit"
-          className="rounded-full bg-[#0f2743] px-5 py-2 text-white font-semibold shadow hover:bg-[#0c1f36]"
+          disabled={isSubmitting}
+          className="rounded-full bg-[#0f2743] px-5 py-2 text-white font-semibold shadow hover:bg-[#0c1f36] disabled:opacity-60"
         >
-          Agregar
+          {isSubmitting ? 'Guardando...' : postId ? 'Guardar cambios' : 'Agregar'}
         </button>
       </div>
 
@@ -108,9 +163,10 @@ export default function NewPostForm({ defaultType }: { defaultType: string }) {
               />
             </div>
 
-            {/* Uploader estilo cuadro con flecha */}
             <div className="grid gap-2">
-              <label className="text-sm text-neutral-400 font-medium">Agregar imagen/rostro (Opcional)</label>
+              <label className="text-sm text-neutral-400 font-medium">
+                Agregar imagen/rostro (Opcional)
+              </label>
               <label
                 className="flex h-40 items-center justify-center rounded-md border-2 border-dashed border-neutral-300 text-neutral-400 cursor-pointer"
               >
@@ -125,7 +181,9 @@ export default function NewPostForm({ defaultType }: { defaultType: string }) {
                   onChange={(e) => setImagen(idx, e.target.files?.[0] ?? null)}
                 />
               </label>
-              {b.imagen && <div className="text-xs text-neutral-600">Archivo: {b.imagen.name}</div>}
+              {b.imagen && (
+                <div className="text-xs text-neutral-600">Archivo: {b.imagen.name}</div>
+              )}
             </div>
           </div>
         ))}
