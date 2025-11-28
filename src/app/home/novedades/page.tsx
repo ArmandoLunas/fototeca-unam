@@ -2,8 +2,8 @@ import TopBar from '@/components/public/TopBar';
 import SectionFrame from '@/components/public/SectionFrame';
 
 const LABELS: Record<string, string> = {
-  'sabias-que': '¿Sabías Qué?',
-  sabiasque: '¿Sabías Qué?',        // por si acaso
+  'sabias-que': '¿Sabías qué?',
+  sabiasque: '¿Sabías qué?',        // por si acaso
   'efemerides': 'Efemérides',
   'biografias': 'Biografías',
 };

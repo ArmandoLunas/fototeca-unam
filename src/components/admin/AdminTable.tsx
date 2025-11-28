@@ -34,7 +34,7 @@ export default function AdminTable({
             {rows.map(r => (
               <tr key={r.id} className="border-t">
                 <td className="px-4 py-3">
-                  <div className="font-medium">{r.titulo}</div>
+                  <div className="font-medium text-neutral-600">{r.titulo}</div>
                   {r.descripcion && (
                     <p className="text-xs text-neutral-500 line-clamp-1">{r.descripcion}</p>
                   )}
