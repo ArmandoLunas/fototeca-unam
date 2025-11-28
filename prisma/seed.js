@@ -45,23 +45,50 @@ async function main() {
 
   // 2. Create Resources
   // These resources are just for testing purposes
-  await prisma.resource.create({
-    data: {
+  // Using upsert to prevent duplicates based on title + pdfUrl/url combination
+
+  // First, check if resource exists by title and pdfUrl/url
+  const ciscoResource = await prisma.resource.findFirst({
+    where: {
       title: "Reglamento del aula CISCO",
-      pdfUrl: "/docs/aula-cisco.pdf",
-      categories: {
-        connect: [{ id: rules.id }]
-      }
+      pdfUrl: "/docs/aula-cisco.pdf"
     }
   });
 
-  await prisma.resource.create({
-    data: {
+  if (!ciscoResource) {
+    await prisma.resource.create({
+      data: {
+        title: "Reglamento del aula CISCO",
+        pdfUrl: "/docs/aula-cisco.pdf",
+        categories: {
+          connect: [{ id: rules.id }]
+        }
+      }
+    });
+    console.log('Created: Reglamento del aula CISCO');
+  } else {
+    console.log('Skipped: Reglamento del aula CISCO (already exists)');
+  }
+
+  const pumasResource = await prisma.resource.findFirst({
+    where: {
       title: "Historia de los Pumas",
-      url: "https://pumas.mx/historia",
-      categories: { connect: [{ id: soccer.id }] }
+      url: "https://pumas.mx/historia"
     }
   });
+
+  if (!pumasResource) {
+    await prisma.resource.create({
+      data: {
+        title: "Historia de los Pumas",
+        url: "https://pumas.mx/historia",
+        categories: { connect: [{ id: soccer.id }] }
+      }
+    });
+    console.log('Created: Historia de los Pumas');
+  } else {
+    console.log('Skipped: Historia de los Pumas (already exists)');
+  }
 
   console.log('Seed categories and resources completed');
 }
