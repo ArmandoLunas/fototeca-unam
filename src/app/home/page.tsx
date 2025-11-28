@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { processChatQuery } from '@/app/actions/chat';
 import SectionFrame from '@/components/public/SectionFrame';
+import Carousel from '@/components/Carousel';
+import GalleryGrid from '@/components/GalleryGrid';
 
 export default function HomePage() {
   const [isChatOpen, setIsChatOpen] = useState(false);
@@ -53,26 +55,51 @@ export default function HomePage() {
   return (
     <div className="relative min-h-screen pb-20">
       {/* Hero frame */}
-      <section className="max-w-5xl mx-auto px-4">
-        <div className="mt-8 h-128 rounded-md border border-dashed bg-white shadow-sm flex items-center justify-center text-neutral-500">
-          Carrusel
-        </div>
+      <section className="max-w-7xl mx-auto px-4 pt-10">
+        <Carousel
+          images={[
+            {
+              src: "/cu1(1).png",
+              title: "Ciudad Universitaria",
+              description: "Vista aérea de Ciudad Universitaria, UNAM.",
+            },
+            {
+              src: "/tren-fi.jpeg",
+              title: "Facultad de Ingeniería",
+              description: "Acceso principal a la FI.",
+            },
+          ]}
+        />
       </section>
 
+
       {/* Sección “Laboratorios” */}
-      <section className="max-w-6xl mx-auto px-4 py-8">
-        <h2 className="text-lg text-blue-900 font-semibold mb-4">Laboratorios</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div
-              key={i}
-              className="h-28 rounded-md border border-dashed bg-white shadow-sm flex items-center justify-center text-neutral-500"
-            >
-              Imagen {i + 1}
-            </div>
-          ))}
-        </div>
-      </section>
+      <GalleryGrid
+        images={[
+          {
+            src: "/labo1.png",
+            title: "Laboratorio de Termofluidos",
+            description: "Laboratorio de termofluidos en edificio D.",
+          },
+          {
+            src: "/labo2.png",
+            title: "Automatización",
+            description: "Laboratorio de Robótica y Automatización.",
+          },
+          {
+            src: "/labo3.png",
+            title: "Laboratorio iOS",
+            description: "Laboratorio de desarrollo en iOS.",
+          },
+          {
+            src: "/labo4.png",
+            title: "Sala B",
+            description: "Laboratorio de cómputo Sala B.",
+          },
+        ]}
+      />
+
+
 
       {/* Chatbot */}
       <div className="fixed bottom-20 right-6 z-50 flex flex-col items-end gap-4">
