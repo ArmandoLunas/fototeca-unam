@@ -95,8 +95,8 @@ export async function processChatQuery(userMessage: string) {
 
 async function searchPosts(userMessage: string) {
     const normalizedMsg = normalizeText(userMessage);
-    // Extract meaningful words (longer than 3 characters)
-    const words = normalizedMsg.split(/\s+/).filter(w => w.length > 3);
+    // Extract meaningful words (longer than 2 characters to catch words like "paz")
+    const words = normalizedMsg.split(/\s+/).filter(w => w.length > 2);
 
     // Fetch all posts with their blocks
     const allPosts = await prisma.post.findMany({
@@ -109,12 +109,34 @@ async function searchPosts(userMessage: string) {
 
         // Check tipo match (high priority)
         const normalizedTipo = normalizeText(post.tipo);
+
+        // Check for exact tipo match or singular/plural variations
         if (normalizedMsg.includes(normalizedTipo)) {
             score += 10;
+        } else {
+            // Check variations (e.g., "efemeride" matches "efemérides")
+            const tipoVariations = [normalizedTipo];
+            if (normalizedTipo.endsWith('es')) {
+                tipoVariations.push(normalizedTipo.slice(0, -2)); // efemerides -> efemeride
+            }
+            if (normalizedTipo.endsWith('s')) {
+                tipoVariations.push(normalizedTipo.slice(0, -1)); // biografias -> biografia
+            }
+
+            if (tipoVariations.some(v => normalizedMsg.includes(v))) {
+                score += 10;
+            }
         }
 
         // Check titulo matches (medium-high priority)
         const normalizedTitulo = normalizeText(post.titulo);
+
+        // Bonus for whole phrase match in titulo
+        if (normalizedTitulo.includes(normalizedMsg)) {
+            score += 8;
+        }
+
+        // Individual word matches in titulo
         words.forEach(word => {
             if (normalizedTitulo.includes(word)) {
                 score += 3;
@@ -134,9 +156,9 @@ async function searchPosts(userMessage: string) {
         return { post, score };
     });
 
-    // Filter by minimum threshold (5 points) and sort by score
+    // Filter by minimum threshold (3 points) and sort by score
     return scoredPosts
-        .filter(({ score }) => score >= 5)
+        .filter(({ score }) => score >= 3)
         .sort((a, b) => b.score - a.score)
         .map(({ post }) => post);
 }
