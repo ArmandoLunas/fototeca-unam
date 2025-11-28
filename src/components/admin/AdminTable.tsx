@@ -47,7 +47,7 @@ export default function AdminTable({
                     className="inline-flex items-center gap-2 rounded-full bg-[#0f2743] px-3 py-1 text-xs font-semibold text-white hover:bg-[#0c1f36]"
                     onClick={() => alert('Editar pendiente')}
                   >
-                    ◼ Editor
+                    ◼ Editar
                   </button>
                 </td>
               </tr>
@@ -65,7 +65,7 @@ export default function AdminTable({
 
       <div className="flex justify-center">
         <Link
-          href={`/admin/${sectionSlug}/new`}
+          href={`/admin/${sectionSlug}/post/new`}
           className="inline-flex items-center gap-2 rounded-full bg-[#0f2743] px-5 py-2 text-white font-semibold shadow hover:bg-[#0c1f36]"
         >
           Nueva ⊕

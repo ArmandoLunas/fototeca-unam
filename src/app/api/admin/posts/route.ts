@@ -1,0 +1,166 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/db';
+import { promises as fs } from 'fs';
+import path from 'path';
+import { randomUUID } from 'crypto';
+
+export const runtime = 'nodejs'; // para asegurar fs disponible
+
+async function saveImageToDisk(file: File, index: number) {
+  const bytes = await file.arrayBuffer();
+  const buffer = Buffer.from(bytes);
+
+  const uploadDir = path.join(process.cwd(), 'public', 'uploads');
+  await fs.mkdir(uploadDir, { recursive: true });
+
+  const extFromType = file.type?.split('/')[1] || 'jpg';
+  const filename = `${Date.now()}_${index}_${randomUUID()}.${extFromType}`;
+  const filepath = path.join(uploadDir, filename);
+
+  await fs.writeFile(filepath, buffer);
+
+  // URL pública
+  return `/uploads/${filename}`;
+}
+
+// GET /api/admin/posts?tipo=Biografías
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+  const tipo = searchParams.get('tipo') || undefined;
+
+  const posts = await prisma.post.findMany({
+    where: tipo ? { tipo } : {},
+    include: { blocks: true },
+    orderBy: { createdAt: 'desc' },
+  });
+
+  return NextResponse.json({ ok: true, posts });
+}
+
+// POST -> crear nuevo post
+export async function POST(req: NextRequest) {
+  try {
+    const formData = await req.formData();
+
+    const tipo = formData.get('tipo') as string | null;
+    const titulo = formData.get('titulo') as string | null;
+    const blocksJson = formData.get('blocks') as string | null;
+
+    if (!tipo || !titulo || !blocksJson) {
+      return NextResponse.json(
+        { ok: false, error: 'Faltan campos obligatorios (tipo, titulo, blocks)' },
+        { status: 400 }
+      );
+    }
+
+    const blocksPayload = JSON.parse(blocksJson) as {
+      title: string;
+      content: string;
+    }[];
+
+    const blocksData = [];
+
+    for (let i = 0; i < blocksPayload.length; i++) {
+      const b = blocksPayload[i];
+      const file = formData.get(`image_${i}`);
+
+      let imageUrl: string | undefined;
+
+      if (file && file instanceof File && file.size > 0) {
+        imageUrl = await saveImageToDisk(file, i);
+      }
+
+      blocksData.push({
+        order: i,
+        tituloSeccion: b.title || null,
+        descripcion: b.content,
+        imageUrl: imageUrl || null,
+      });
+    }
+
+    const post = await prisma.post.create({
+      data: {
+        tipo,
+        titulo,
+        blocks: {
+          create: blocksData,
+        },
+      },
+      include: { blocks: true },
+    });
+
+    return NextResponse.json({ ok: true, post }, { status: 201 });
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json(
+      { ok: false, error: 'Error interno al crear la publicación' },
+      { status: 500 }
+    );
+  }
+}
+
+// PUT -> actualizar post existente
+export async function PUT(req: NextRequest) {
+  try {
+    const formData = await req.formData();
+
+    const id = formData.get('id') as string | null;
+    const tipo = formData.get('tipo') as string | null;
+    const titulo = formData.get('titulo') as string | null;
+    const blocksJson = formData.get('blocks') as string | null;
+
+    if (!id || !tipo || !titulo || !blocksJson) {
+      return NextResponse.json(
+        { ok: false, error: 'Faltan campos obligatorios (id, tipo, titulo, blocks)' },
+        { status: 400 }
+      );
+    }
+
+    const blocksPayload = JSON.parse(blocksJson) as {
+      title: string;
+      content: string;
+    }[];
+
+    const blocksData = [];
+
+    for (let i = 0; i < blocksPayload.length; i++) {
+      const b = blocksPayload[i];
+      const file = formData.get(`image_${i}`);
+
+      let imageUrl: string | undefined;
+
+      if (file && file instanceof File && file.size > 0) {
+        imageUrl = await saveImageToDisk(file, i);
+      }
+
+      blocksData.push({
+        order: i,
+        tituloSeccion: b.title || null,
+        descripcion: b.content,
+        imageUrl: imageUrl || null,
+      });
+    }
+
+    // Borramos bloques viejos y recreamos
+    const post = await prisma.post.update({
+      where: { id },
+      data: {
+        tipo,
+        titulo,
+        blocks: {
+          deleteMany: {},      // borra todos los bloques anteriores
+          create: blocksData,
+        },
+      },
+      include: { blocks: true },
+    });
+
+    return NextResponse.json({ ok: true, post });
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json(
+      { ok: false, error: 'Error interno al actualizar la publicación' },
+      { status: 500 }
+    );
+  }
+}

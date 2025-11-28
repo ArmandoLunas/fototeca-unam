@@ -110,3 +110,28 @@ model Category{
   children Category[] @relation("CategoryToCategory")
   resources Resource[] @relation("ResourceCategories")
 }
+
+model Post {
+  id           String      @id @default(cuid())
+  tipo         String                       // Ej: "Biografías", "Efemérides", "Exposiciones", "¿Sabías Qué?"
+  titulo       String
+  fechaInicio  DateTime?                   // opcional
+  fechaFin     DateTime?                   // opcional
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  blocks       PostBlock[]
+}
+
+model PostBlock {
+  id             String   @id @default(cuid())
+  postId         String
+  order          Int
+  tituloSeccion  String?
+  descripcion    String
+  imageUrl       String?
+
+  post           Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId, order])
+}
