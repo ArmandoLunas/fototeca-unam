@@ -21,9 +21,9 @@ export default async function ExposicionPage({ params }: { params: { id: string 
             return (
             <div key={b.id} className="max-w-3xl mx-auto py-4">
                 {b.tituloSeccion && (
-                <h2 className="text-2xl font-semibold text-center mb-2">{b.tituloSeccion}</h2>
+                <h2 className="text-2xl text-neutral-800 font-semibold text-center mb-2">{b.tituloSeccion}</h2>
                 )}
-                <p className="text-justify text-lg leading-relaxed">
+                <p className="text-justify text-neutral-700 text-lg leading-relaxed">
                 {b.descripcion}
                 </p>
             </div>
