@@ -5,7 +5,6 @@ import { PrismaClient } from '@prisma/client';
 /**
  * TODO: 
  * - Define correctly the rules for matching categories
- * - Provide the link to the resource in the response
  */
 
 // Use a global instance in dev to prevent connection exhaustion
@@ -16,32 +15,37 @@ if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 export async function processChatQuery(userMessage: string) {
     const lowerMsg = userMessage.toLowerCase();
 
-    // 1. PARSE ACTION (Basic keyword detection)
-    const actionKeywords = ['dame', 'busca', 'ver', 'muestrame', 'encuentra', 'lista'];
-    const actionFound = actionKeywords.find(w => lowerMsg.includes(w));
-
-    // If no explicit search action is found, we might assume it's a conversational "hello"
-    if (!actionFound && !lowerMsg.includes('?')) {
-        // Simple conversational fallback
-        return {
-            reply: "No entendí tu solicitud. ¿Podrías reformularla?",
-            data: []
-        };
-    }
-
-    // 2. PARSE TAGS
+    // 1. PARSE CATEGORIES FIRST
     // We fetch all known categories from DB to match against user input
     const allCategories = await prisma.category.findMany();
 
     // Filter categories that appear in the user string
     const detectedCategories = allCategories.filter(cat => matchCategory(cat.name, lowerMsg));
 
+    // 2. CHECK ACTION KEYWORDS
+    const actionKeywords = ['dame', 'busca', 'ver', 'muestrame', 'encuentra', 'lista'];
+    const actionFound = actionKeywords.find(w => lowerMsg.includes(w));
+
+    // 3. VALIDATE INPUT
+    // If no categories found, check if there's at least an action keyword
     if (detectedCategories.length === 0) {
+        // If no action keyword either, provide helpful feedback
+        if (!actionFound && !lowerMsg.includes('?')) {
+            return {
+                reply: "Para buscar recursos, incluye una acción como: 'dame', 'busca', 'muéstrame', 'encuentra', o 'lista'. Por ejemplo: 'dame deportes' o 'busca reglamentos'.",
+                data: []
+            };
+        }
+
+        // Has action keyword but no matching categories
         return {
             reply: "No identifiqué ninguna categoría que coincida con tu solicitud. ¿Podrías ser más específico?",
             data: []
         };
     }
+
+    // If we have categories, proceed with the query (action keyword is optional)
+
 
     // 3. DATABASE QUERY (Intersection Logic)
     // We want resources that have ALL the detected categories
