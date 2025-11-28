@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import TopBar from '@/components/public/TopBar';
 import FloatingMenuButton from '@/components/public/FloatingMenuButton';
+import Footer from '@/components/layout/Footer'; 
 
 export default function HomeLayout({ children }: { children: ReactNode }) {
   return (

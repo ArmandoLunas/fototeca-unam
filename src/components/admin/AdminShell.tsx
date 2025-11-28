@@ -2,6 +2,8 @@
 import Image from 'next/image';
 import { ReactNode } from 'react';
 import AdminSidebar from './AdminSidebar';
+import Footer from '@/components/layout/Footer'; 
+
 
 export default function AdminShell({ children }: { children: ReactNode }) {
     return (
@@ -36,12 +38,8 @@ export default function AdminShell({ children }: { children: ReactNode }) {
                 </main>
             </div>
 
-            <footer className="mt-8 bg-[#0f2743] text-white/80">
-                <div className="max-w-6xl mx-auto px-6 py-6 text-xs leading-5">
-                    Universidad Nacional Autónoma de México — Derechos reservados.
-                </div>
-                <div className="h-8 bg-[#0b1c31]" />
-            </footer>
-        </div>
-    );
+          {/* FOOTER REUTILIZABLE ABAJO DE TODO */}
+      <Footer />
+    </div>
+  );
 }

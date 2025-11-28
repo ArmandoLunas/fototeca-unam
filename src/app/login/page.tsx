@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { signIn } from 'next-auth/react';
 import { useState, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import Footer from '@/components/layout/Footer';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -47,7 +48,7 @@ export default function LoginPage() {
       }}
     >
       {/* HEADER */}
-      <header className="w-full bg-black/50 text-white py-3 px-6 flex items-center justify-between">
+      <header className="w-full bg-black/60 text-white py-9 px-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Image
             src="/fi-escudo-color.png"
@@ -117,13 +118,8 @@ export default function LoginPage() {
         </form>
       </main>
 
-      {/* FOOTER */}
-      <footer className="w-full bg-black/40 text-white text-xs py-3 text-center">
-        Fototeca UNAM · {new Date().getFullYear()} · D.R © 1999-2025 Universidad Nacional Autónoma de México.
-Facultad de Ingeniería, Av. Universidad 3000, Ciudad Universitaria, Coyoacán, México D. F. CP 04510. Prohibida su reproducción parcial o total para fines de lucro.
-
-Aviso de privacidad
-      </footer>
+     {/* FOOTER REUTILIZABLE */}
+      <Footer />
     </div>
   );
 }
