@@ -2,12 +2,6 @@
 
 import { PrismaClient } from '@prisma/client';
 
-/**
- * TODO: 
- * - Define correctly the rules for matching categories
- * - Provide the link to the resource in the response
- */
-
 // Use a global instance in dev to prevent connection exhaustion
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
 const prisma = globalForPrisma.prisma || new PrismaClient();
@@ -16,69 +10,155 @@ if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 export async function processChatQuery(userMessage: string) {
     const lowerMsg = userMessage.toLowerCase();
 
-    // 1. PARSE ACTION (Basic keyword detection)
-    const actionKeywords = ['dame', 'busca', 'ver', 'muestrame', 'encuentra', 'lista'];
-    const actionFound = actionKeywords.find(w => lowerMsg.includes(w));
-
-    // If no explicit search action is found, we might assume it's a conversational "hello"
-    if (!actionFound && !lowerMsg.includes('?')) {
-        // Simple conversational fallback
-        return {
-            reply: "No entendí tu solicitud. ¿Podrías reformularla?",
-            data: []
-        };
-    }
-
-    // 2. PARSE TAGS
+    // 1. PARSE CATEGORIES FIRST
     // We fetch all known categories from DB to match against user input
     const allCategories = await prisma.category.findMany();
 
     // Filter categories that appear in the user string
     const detectedCategories = allCategories.filter(cat => matchCategory(cat.name, lowerMsg));
 
-    if (detectedCategories.length === 0) {
+    // 2. CHECK ACTION KEYWORDS
+    const actionKeywords = ['dame', 'busca', 'ver', 'muestrame', 'encuentra', 'lista'];
+    const actionFound = actionKeywords.find(w => lowerMsg.includes(w));
+
+    // 3. SEARCH POSTS (always search, regardless of categories)
+    const matchingPosts = await searchPosts(lowerMsg);
+
+    // 4. VALIDATE INPUT
+    // If no categories AND no posts found, check if there's at least an action keyword
+    if (detectedCategories.length === 0 && matchingPosts.length === 0) {
+        // If no action keyword either, provide helpful feedback
+        if (!actionFound && !lowerMsg.includes('?')) {
+            return {
+                reply: "Para buscar recursos o publicaciones, incluye una acción como: 'dame', 'busca', 'muéstrame', 'encuentra', o 'lista'.",
+                data: [],
+                posts: []
+            };
+        }
+
+        // Has action keyword but no matching categories or posts
         return {
-            reply: "No identifiqué ninguna categoría que coincida con tu solicitud. ¿Podrías ser más específico?",
-            data: []
+            reply: "No encontré recursos ni publicaciones que coincidan con tu búsqueda. ¿Podrías intentar con otras palabras clave?",
+            data: [],
+            posts: []
         };
     }
 
-    // 3. DATABASE QUERY (Intersection Logic)
-    // We want resources that have ALL the detected categories
-    const resources = await prisma.resource.findMany({
-        where: {
-            AND: detectedCategories.map(cat => ({
-                categories: {
-                    some: {
-                        id: cat.id
+    // 5. SEARCH RESOURCES (only if categories were found)
+    let uniqueResources: any[] = [];
+    if (detectedCategories.length > 0) {
+        const resources = await prisma.resource.findMany({
+            where: {
+                AND: detectedCategories.map(cat => ({
+                    categories: {
+                        some: {
+                            id: cat.id
+                        }
                     }
-                }
-            }))
-        },
-        include: {
-            categories: true
-        }
-    });
+                }))
+            },
+            include: {
+                categories: true
+            }
+        });
 
-    // Deduplicate resources by ID (in case of any database quirks)
-    const uniqueResources = Array.from(
-        new Map(resources.map(r => [r.id, r])).values()
-    );
+        // Deduplicate resources by ID
+        uniqueResources = Array.from(
+            new Map(resources.map(r => [r.id, r])).values()
+        );
+    }
 
-    // 4. FORMAT RESPONSE
-    const tagNames = detectedCategories.map(c => c.name).join(' + ');
+    // 6. FORMAT RESPONSE
+    const totalResults = uniqueResources.length + matchingPosts.length;
 
-    if (uniqueResources.length === 0) {
-        return {
-            reply: `No encontré recursos para [${tagNames}].`,
-            data: []
-        };
+    let reply = '';
+    if (uniqueResources.length > 0 && matchingPosts.length > 0) {
+        reply = `Encontré ${uniqueResources.length} recurso(s) y ${matchingPosts.length} publicación(es):`;
+    } else if (uniqueResources.length > 0) {
+        const tagNames = detectedCategories.map(c => c.name).join(' + ');
+        reply = `Encontré ${uniqueResources.length} recurso(s) para [${tagNames}]:`;
+    } else {
+        reply = `Encontré ${matchingPosts.length} publicación(es):`;
     }
 
     return {
-        reply: `Encontré ${uniqueResources.length} resultado(s) para [${tagNames}]:`,
-        data: uniqueResources
+        reply,
+        data: uniqueResources,
+        posts: matchingPosts.map(post => ({
+            id: post.id,
+            titulo: post.titulo,
+            tipo: post.tipo,
+            url: getPostUrl(post)
+        }))
     };
+}
+
+async function searchPosts(userMessage: string) {
+    const normalizedMsg = normalizeText(userMessage);
+    // Extract meaningful words (longer than 3 characters)
+    const words = normalizedMsg.split(/\s+/).filter(w => w.length > 3);
+
+    // Fetch all posts with their blocks
+    const allPosts = await prisma.post.findMany({
+        include: { blocks: true }
+    });
+
+    // Score each post based on matches
+    const scoredPosts = allPosts.map(post => {
+        let score = 0;
+
+        // Check tipo match (high priority)
+        const normalizedTipo = normalizeText(post.tipo);
+        if (normalizedMsg.includes(normalizedTipo)) {
+            score += 10;
+        }
+
+        // Check titulo matches (medium-high priority)
+        const normalizedTitulo = normalizeText(post.titulo);
+        words.forEach(word => {
+            if (normalizedTitulo.includes(word)) {
+                score += 3;
+            }
+        });
+
+        // Check description matches (lower priority, accumulative)
+        post.blocks.forEach(block => {
+            const normalizedDesc = normalizeText(block.descripcion);
+            words.forEach(word => {
+                if (normalizedDesc.includes(word)) {
+                    score += 1;
+                }
+            });
+        });
+
+        return { post, score };
+    });
+
+    // Filter by minimum threshold (5 points) and sort by score
+    return scoredPosts
+        .filter(({ score }) => score >= 5)
+        .sort((a, b) => b.score - a.score)
+        .map(({ post }) => post);
+}
+
+function getPostUrl(post: { tipo: string; id: string }): string {
+    const tipo = normalizeText(post.tipo);
+
+    if (tipo.includes('efemeride')) {
+        return `/home/novedades/efemerides/${post.id}`;
+    }
+    if (tipo.includes('biografia')) {
+        return `/home/novedades/biografias/${post.id}`;
+    }
+    if (tipo.includes('exposicion')) {
+        return `/home/exposiciones`;
+    }
+    if (tipo.includes('sabias')) {
+        return `/home/novedades/sabias-que/${post.id}`;
+    }
+
+    // Fallback to general novedades
+    return `/home/novedades/${post.id}`;
 }
 
 function matchCategory(categoryName: string, userMessage: string): boolean {
