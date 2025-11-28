@@ -2,6 +2,7 @@ import { ReactNode } from 'react';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import AdminShell from '@/components/admin/AdminShell';
+import Footer from '@/components/layout/Footer'; 
 
 export default async function AdminLayout({ children }: { children: ReactNode }) {
   const session = await getServerSession(authOptions);
