@@ -14,6 +14,7 @@ export default function HomePage() {
     text: string;
     sender: string;
     resources?: Array<{ id: string; title: string; url: string | null; pdfUrl: string | null }>;
+    posts?: Array<{ id: string; titulo: string; tipo: string; url: string }>;
   }>>([
     { id: 1, text: 'Hola, soy PumaHelper. ¿En qué puedo ayudarte?', sender: 'bot' }
   ]);
@@ -33,14 +34,15 @@ export default function HomePage() {
     try {
       const response = await processChatQuery(newUserMsg.text);
 
-      // 3. Add Bot Response to UI with resources (combined in single message)
+      // 3. Add Bot Response to UI with resources and posts (combined in single message)
       setMessages((prev) => [
         ...prev,
         {
           id: Date.now() + 1,
           text: response.reply,
           sender: 'bot',
-          resources: response.data && response.data.length > 0 ? response.data : undefined
+          resources: response.data && response.data.length > 0 ? response.data : undefined,
+          posts: response.posts && response.posts.length > 0 ? response.posts : undefined
         }
       ]);
 
@@ -166,6 +168,31 @@ export default function HomePage() {
                             </a>
                           );
                         })}
+                      </div>
+                    )}
+
+                    {/* Render posts as clickable links */}
+                    {msg.posts && msg.posts.length > 0 && (
+                      <div className="mt-2 space-y-1.5 border-t border-gray-200 pt-2">
+                        {msg.posts.map((post) => (
+                          <a
+                            key={post.id}
+                            href={post.url}
+                            className="flex items-center gap-2 text-blue-600 hover:text-blue-800 hover:underline transition-colors"
+                          >
+                            <span className="text-base flex-shrink-0">
+                              📰
+                            </span>
+                            <div className="flex-1 min-w-0">
+                              <span className="text-xs font-medium truncate block">
+                                {post.titulo}
+                              </span>
+                              <span className="text-[10px] text-gray-500">
+                                {post.tipo}
+                              </span>
+                            </div>
+                          </a>
+                        ))}
                       </div>
                     )}
                   </div>
