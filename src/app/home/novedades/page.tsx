@@ -3,7 +3,7 @@ import SectionFrame from '@/components/public/SectionFrame';
 
 const LABELS: Record<string, string> = {
   'sabias-que': '¿Sabías qué?',
-  sabiasque: '¿Sabías qué?',        // por si acaso
+  //sabiasque: '¿Sabías qué?',        // por si acaso
   'efemerides': 'Efemérides',
   'biografias': 'Biografías',
 };

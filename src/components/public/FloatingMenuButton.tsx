@@ -40,7 +40,7 @@ export default function FloatingMenuButton() {
         aria-label="Abrir menú"
         className="
           fixed z-50
-          bottom-6 right-6 md:bottom-8 md:right-8
+          top-40 left-18 md:bottom-8 md:right-20
           h-12 w-12 rounded-full
           bg-neutral-300 hover:bg-neutral-400
           text-neutral-800
@@ -58,7 +58,7 @@ export default function FloatingMenuButton() {
           ref={panelRef}
           className="
             fixed z-50
-            bottom-24 right-6 md:right-8
+            top-40 left-32 md:right-8
             w-64
             bg-white rounded-lg shadow-xl ring-1 ring-black/10
             overflow-hidden
