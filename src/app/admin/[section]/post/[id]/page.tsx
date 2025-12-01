@@ -10,7 +10,7 @@ type Props = {
 export default async function EditPostPage({ params }: Props) {
   const { section, id } = params;
 
-  // 🛡️ Protección para evitar que “new” caiga aquí
+  // Protección para evitar que “new” caiga aquí
   if (id === "new") {
     redirect(`/admin/${section}/post/new`);
   }
