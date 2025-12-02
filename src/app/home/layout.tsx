@@ -1,19 +1,24 @@
 import type { ReactNode } from 'react';
 import TopBar from '@/components/public/TopBar';
 import FloatingMenuButton from '@/components/public/FloatingMenuButton';
+import Footer from '@/components/layout/Footer';
 
 export default function HomeLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="min-h-dvh bg-neutral-100">
+    <div className="min-h-screen flex flex-col bg-neutral-100">
+      {/* Botón flotante (no afecta al layout porque suele ir fixed/absolute) */}
+        <FloatingMenuButton />
+      {/* BARRA SUPERIOR PÚBLICA */}
       <TopBar />
-      <main>{children}</main>
-      <FloatingMenuButton />  {/* ← flotante, no en el header */}
+      {/* CONTENIDO DEL HOME */}
+      <main className="flex-1 relative">
+        {children}
 
-      <footer className="mt-8 bg-[#0f2743] text-white/80">
-        <div className="max-w-6xl mx-auto px-6 py-6 text-xs leading-5">
-          Universidad Nacional Autónoma de México — Derechos reservados.
-        </div>
-      </footer>
+        
+      </main>
+
+      {/* FOOTER REUTILIZABLE SIEMPRE HASTA ABAJO */}
+      <Footer />
     </div>
   );
 }

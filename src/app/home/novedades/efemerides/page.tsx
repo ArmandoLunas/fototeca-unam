@@ -38,5 +38,6 @@ export default async function EfemeridesPage() {
         ))}
       </div>
     </div>
+
   );
 }

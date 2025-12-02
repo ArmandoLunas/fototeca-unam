@@ -15,6 +15,7 @@ export default async function EditPostPage({ params }: Props) {
     redirect(`/admin/${section}/post/new`);
   }
 
+  // Esperamos que el parámetro esté completamente resuelto
   const post = await prisma.post.findUnique({
     where: { id },
     include: { blocks: { orderBy: { order: 'asc' } } },
@@ -28,6 +29,7 @@ export default async function EditPostPage({ params }: Props) {
     );
   }
 
+  // Mapear los bloques para prepararlos para el formulario
   const initialBlocks = post.blocks.map(b => ({
     title: b.tituloSeccion || '',
     content: b.descripcion,

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
 
 function useOnClickOutside<T extends HTMLElement = HTMLElement>(
   ref: React.RefObject<T>,
@@ -9,38 +10,39 @@ function useOnClickOutside<T extends HTMLElement = HTMLElement>(
 ) {
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (ref.current && !ref.current.contains(event.target as Node)) {
+      if (!ref.current) return;
+      if (!ref.current.contains(event.target as Node)) {
         handler();
       }
     }
 
-    // Solo añade el listener si ref.current existe
-    if (ref.current) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
-    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [ref, handler]);
 }
 
 export default function FloatingMenuButton() {
   const [open, setOpen] = useState(false);
   const [openNovedades, setOpenNovedades] = useState(false);
-  const panelRef = useRef<HTMLDivElement>(null);
+  const { data: session } = useSession(); // 👈 sesión actual
 
-  useOnClickOutside(panelRef, () => {
+  // Contenedor que envuelve botón + panel
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useOnClickOutside(containerRef, () => {
     setOpen(false);
     setOpenNovedades(false);
   });
 
   return (
-    <>
+    <div ref={containerRef}>
       {/* Botón flotante circular gris con "tres rayas" */}
       <button
         onClick={() => setOpen(v => !v)}
         aria-label="Abrir menú"
         className="
           fixed z-50
-          bottom-6 right-6 md:bottom-8 md:right-8
+          top-40 left-18 md:bottom-8 md:right-20
           h-12 w-12 rounded-full
           bg-neutral-300 hover:bg-neutral-400
           text-neutral-800
@@ -48,20 +50,17 @@ export default function FloatingMenuButton() {
           flex items-center justify-center
         "
       >
-        {/* Icono "hamburger" con tres líneas */}
         <span className="text-xl">☰</span>
       </button>
 
       {/* Panel flotante */}
       {open && (
         <div
-          ref={panelRef}
           className="
             fixed z-50
-            bottom-24 right-6 md:right-8
+            top-40 left-32 md:right-8
             w-64
             bg-white rounded-lg shadow-xl ring-1 ring-black/10
-            overflow-hidden
           "
         >
           <nav className="py-2 text-sm text-neutral-800">
@@ -76,6 +75,7 @@ export default function FloatingMenuButton() {
                 </Link>
               </li>
 
+              {/* Novedades + submenú */}
               <li className="relative">
                 <button
                   className="w-full text-left px-4 py-3 hover:bg-neutral-50 flex items-center justify-between"
@@ -86,7 +86,6 @@ export default function FloatingMenuButton() {
                   <span className="text-xs">{openNovedades ? '▾' : '▸'}</span>
                 </button>
 
-                {/* Submenú flotante */}
                 {openNovedades && (
                   <div
                     className="
@@ -138,15 +137,18 @@ export default function FloatingMenuButton() {
                 )}
               </li>
 
-              <li>
-                <Link
-                  href="/home/favoritos"
-                  className="block px-4 py-3 hover:bg-neutral-50"
-                  onClick={() => setOpen(false)}
-                >
-                  Favoritos
-                </Link>
-              </li>
+              {/* Favoritos solo si hay sesión (por ahora) */}
+              {session && (
+                <li>
+                  <Link
+                    href="/home/favoritos"
+                    className="block px-4 py-3 hover:bg-neutral-50"
+                    onClick={() => setOpen(false)}
+                  >
+                    Favoritos
+                  </Link>
+                </li>
+              )}
 
               <li>
                 <Link
@@ -161,6 +163,6 @@ export default function FloatingMenuButton() {
           </nav>
         </div>
       )}
-    </>
+    </div>
   );
 }

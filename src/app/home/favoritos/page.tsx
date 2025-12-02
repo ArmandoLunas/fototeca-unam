@@ -33,5 +33,6 @@ export default function FavoritosPage() {
                 ))}
             </div>
         </div>
+
     );
 }

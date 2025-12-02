@@ -17,6 +17,21 @@ export default function AdminTable({
   sectionSlug: string;
   rows: Row[];
 }) {
+
+  const handleDelete = async (id: string) => {
+    const res = await fetch(`/api/admin/posts/${id}`, {
+      method: 'DELETE',
+    });
+
+    const json = await res.json();
+    if (json.ok) {
+      alert('Publicación eliminada');
+      window.location.reload(); // Recargar para mostrar la tabla actualizada
+    } else {
+      alert('Error al eliminar la publicación');
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="overflow-hidden rounded-md border border-neutral-200 bg-white">
@@ -31,10 +46,10 @@ export default function AdminTable({
             </tr>
           </thead>
           <tbody>
-            {rows.map(r => (
+            {rows.map((r) => (
               <tr key={r.id} className="border-t">
                 <td className="px-4 py-3">
-                  <div className="font-medium">{r.titulo}</div>
+                  <div className="font-medium text-neutral-600">{r.titulo}</div>
                   {r.descripcion && (
                     <p className="text-xs text-neutral-500 line-clamp-1">{r.descripcion}</p>
                   )}
@@ -42,12 +57,20 @@ export default function AdminTable({
                 <td className="px-4 py-3 text-neutral-500">{r.fechaCreacion}</td>
                 <td className="px-4 py-3 text-neutral-500">{r.fechaInicio || '—'}</td>
                 <td className="px-4 py-3 text-neutral-500">{r.fechaFin || '—'}</td>
-                <td className="px-4 py-3 text-right">
-                  <button
+                <td className="px-4 py-3 text-right flex gap-2">
+                  {/* Botón Editar */}
+                  <Link
+                    href={`/admin/${sectionSlug}/post/${r.id}`}
                     className="inline-flex items-center gap-2 rounded-full bg-[#0f2743] px-3 py-1 text-xs font-semibold text-white hover:bg-[#0c1f36]"
-                    onClick={() => alert('Editar pendiente')}
                   >
                     ◼ Editar
+                  </Link>
+                  {/* Botón Eliminar */}
+                  <button
+                    onClick={() => handleDelete(r.id)}
+                    className="inline-flex items-center gap-2 rounded-full bg-red-600 px-3 py-1 text-xs font-semibold text-white hover:bg-red-700"
+                  >
+                    🗑 Eliminar
                   </button>
                 </td>
               </tr>
