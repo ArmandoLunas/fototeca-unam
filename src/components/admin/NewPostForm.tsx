@@ -1,6 +1,5 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { SECTIONS } from '@/lib/sections';
 
 type SectionBlock = {
   id: string;
@@ -16,14 +15,21 @@ type InitialBlock = {
 };
 
 type Props = {
-  defaultType: string;
-  postId?: string; // si existe -> editar
+  defaultType: string;   // ej. "¿Sabías qué?"
+  postId?: string;       // si existe -> editar
   initialTitle?: string;
   initialBlocks?: InitialBlock[];
 };
 
-export default function NewPostForm({ defaultType, postId, initialTitle, initialBlocks }: Props) {
-  const [tipo, setTipo] = useState(defaultType);
+export default function NewPostForm({
+  defaultType,
+  postId,
+  initialTitle,
+  initialBlocks,
+}: Props) {
+  // Tipo fijo según la pantalla / menú desde donde entras
+  const [tipo] = useState(defaultType);
+
   const [titulo, setTitulo] = useState(initialTitle ?? '');
   const [bloques, setBloques] = useState<SectionBlock[]>([
     { id: crypto.randomUUID(), tituloSeccion: '', descripcion: '', imagen: null },
@@ -37,7 +43,7 @@ export default function NewPostForm({ defaultType, postId, initialTitle, initial
           id: crypto.randomUUID(),
           tituloSeccion: b.title,
           descripcion: b.content,
-          imagen: null, // las imágenes actuales se conservarán solo por URL, el admin puede subir nuevas
+          imagen: null,
         }))
       );
     }
@@ -61,7 +67,7 @@ export default function NewPostForm({ defaultType, postId, initialTitle, initial
     try {
       const form = new FormData();
       if (postId) form.append('id', postId);
-      form.append('tipo', tipo);
+      form.append('tipo', tipo);      // 👈 se manda el tipo fijado
       form.append('titulo', titulo);
 
       const blocksPayload = bloques.map(b => ({
@@ -75,12 +81,12 @@ export default function NewPostForm({ defaultType, postId, initialTitle, initial
       });
 
       const method = postId ? 'PUT' : 'POST';
-
       const res = await fetch('/api/admin/posts', { method, body: form });
       const json = await res.json();
+
       if (json.ok) {
         alert(postId ? 'Publicación actualizada' : 'Publicación creada');
-        // Aquí puedes hacer router.push o resetear formulario
+        // aquí ya haces router.push o lo que tengas
       } else {
         alert('Error: ' + (json.error || 'unknown'));
       }
@@ -108,18 +114,12 @@ export default function NewPostForm({ defaultType, postId, initialTitle, initial
       </div>
 
       <div className="rounded-md border border-neutral-200 bg-white p-5 space-y-4">
-        {/* Tipo */}
+        {/* Tipo (solo lectura) */}
         <div className="grid gap-2">
           <label className="text-sm text-neutral-400 font-medium">Tipo</label>
-          <select
-            className="rounded-md border text-neutral-800 border-neutral-300 px-3 py-2 bg-white"
-            value={tipo}
-            onChange={(e) => setTipo(e.target.value)}
-          >
-            {SECTIONS.map(s => (
-              <option key={s.slug} value={s.label}>{s.label}</option>
-            ))}
-          </select>
+          <div className="rounded-md border text-neutral-800 border-neutral-300 px-3 py-2 bg-neutral-50">
+            {tipo}
+          </div>
         </div>
 
         {/* Título */}
@@ -182,7 +182,9 @@ export default function NewPostForm({ defaultType, postId, initialTitle, initial
                 />
               </label>
               {b.imagen && (
-                <div className="text-xs text-neutral-600">Archivo: {b.imagen.name}</div>
+                <div className="text-xs text-neutral-600">
+                  Archivo: {b.imagen.name}
+                </div>
               )}
             </div>
           </div>

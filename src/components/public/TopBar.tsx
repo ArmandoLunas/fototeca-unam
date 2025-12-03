@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import HamburgerMenu from './HamburgerMenu';
 import { useState, useEffect, useRef, useMemo } from 'react';
-import { useSession, signOut } from "next-auth/react";
+import { useSession, signOut } from 'next-auth/react';
 import { usePathname } from 'next/navigation';
 
 import {
@@ -39,8 +39,10 @@ function useAutoSectionLabel(manualLabel?: string) {
 export default function TopBar({ section }: TopBarProps) {
   const [open, setOpen] = useState(false);
   const [userMenu, setUserMenu] = useState(false);
-  const { data: session } = useSession();
   const userMenuRef = useRef<HTMLDivElement | null>(null);
+
+  const { data: session } = useSession();
+  const isAdmin = session?.user?.role === 'ADMIN';
 
   const sectionLabel = useAutoSectionLabel(section);
 
@@ -62,21 +64,19 @@ export default function TopBar({ section }: TopBarProps) {
     <div className="w-full bg-[#caa357] text-white relative">
       <div className="max-w-6xl mx-auto px-4">
         <div className="h-32 flex items-center justify-between">
-          
           {/* IZQUIERDA: LOGO + SECCIÓN */}
           <div className="flex items-center gap-6">
-            {/* Logo que lleva a la página de Ingeniería UNAM */}
             <Link
               href="https://www.ingenieria.unam.mx/"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-3"
             >
-              <Image 
-                src="/fi-escudo-color.png" 
-                alt="Escudo FI UNAM" 
-                width={100} 
-                height={100} 
+              <Image
+                src="/fi-escudo-color.png"
+                alt="Escudo FI UNAM"
+                width={100}
+                height={100}
               />
               <span className="text-5xl font-semibold">Fototeca</span>
             </Link>
@@ -97,11 +97,28 @@ export default function TopBar({ section }: TopBarProps) {
             {!session && (
               <Link
                 href="/login"
-                className="rounded bg-[#0f2743] px-4 py-2 text-sm font-semibold shadow hover:bg-[#0c1f36]"
+                className="flex items-center gap-2 rounded px-4 py-2 text-sm font-semibold"
               >
-                Ingresar
+                {/* Mismo SVG que el botón de usuario */}
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className="w-7 h-7"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"
+                  />
+                </svg>
+
+                <span>Ingresar</span>
               </Link>
             )}
+
 
             {/* SI HAY SESIÓN → MENÚ DE USUARIO */}
             {session && (
@@ -127,13 +144,24 @@ export default function TopBar({ section }: TopBarProps) {
                   </svg>
 
                   <span className="font-semibold text-white text-sm">
-                    {session.user?.name || "Usuario"}
+                    {session.user?.name || 'Usuario'}
                   </span>
                 </button>
 
                 {/* DROPDOWN USUARIO */}
                 {userMenu && (
                   <div className="absolute right-0 mt-2 w-48 bg-white text-neutral-800 rounded shadow-lg py-2 z-50">
+                    {/* 👇 Solo admins ven esto */}
+                    {isAdmin && (
+                      <Link
+                        href="/admin"
+                        className="block px-4 py-2 hover:bg-neutral-200 text-sm"
+                        onClick={() => setUserMenu(false)}
+                      >
+                        Administración
+                      </Link>
+                    )}
+
                     <Link
                       href="/home/cuenta"
                       className="block px-4 py-2 hover:bg-neutral-200 text-sm"
@@ -161,7 +189,7 @@ export default function TopBar({ section }: TopBarProps) {
                     <button
                       onClick={() => {
                         setUserMenu(false);
-                        signOut({ callbackUrl: "/home" });
+                        signOut({ callbackUrl: '/home' });
                       }}
                       className="w-full flex items-center gap-2 text-left px-4 py-2 text-red-700 hover:bg-red-100 text-sm"
                     >
@@ -189,7 +217,7 @@ export default function TopBar({ section }: TopBarProps) {
             {/* Imagen extra al extremo derecho */}
             <div className="hidden md:block">
               <Image
-                src="/LOGOFotoTeca.png" // cambia a otra imagen si quieres
+                src="/LOGOFotoTeca.png"
                 alt="Logo extra"
                 width={150}
                 height={150}
