@@ -19,6 +19,7 @@ type Props = {
   postId?: string;       // si existe -> editar
   initialTitle?: string;
   initialBlocks?: InitialBlock[];
+  initialFechaEfemeride?: string | null; // fecha manual para Efemérides
 };
 
 export default function NewPostForm({
@@ -26,11 +27,13 @@ export default function NewPostForm({
   postId,
   initialTitle,
   initialBlocks,
+  initialFechaEfemeride,
 }: Props) {
   // Tipo fijo según la pantalla / menú desde donde entras
   const [tipo] = useState(defaultType);
 
   const [titulo, setTitulo] = useState(initialTitle ?? '');
+  const [fechaEfemeride, setFechaEfemeride] = useState(initialFechaEfemeride ?? '');
   const [bloques, setBloques] = useState<SectionBlock[]>([
     { id: crypto.randomUUID(), tituloSeccion: '', descripcion: '', imagen: null },
   ]);
@@ -69,6 +72,11 @@ export default function NewPostForm({
       if (postId) form.append('id', postId);
       form.append('tipo', tipo);      // 👈 se manda el tipo fijado
       form.append('titulo', titulo);
+
+      // Solo agregar fechaEfemeride si el tipo es "Efeméride" y hay una fecha
+      if (tipo === 'Efeméride' && fechaEfemeride) {
+        form.append('fechaEfemeride', fechaEfemeride);
+      }
 
       const blocksPayload = bloques.map(b => ({
         title: b.tituloSeccion,
@@ -132,6 +140,24 @@ export default function NewPostForm({
             onChange={(e) => setTitulo(e.target.value)}
           />
         </div>
+
+        {/* Fecha de Efeméride (solo para tipo Efeméride) */}
+        {tipo === 'Efeméride' && (
+          <div className="grid gap-2">
+            <label className="text-sm text-neutral-400 font-medium">
+              Fecha de la Efeméride
+            </label>
+            <input
+              type="date"
+              className="rounded-md border text-neutral-800 border-neutral-300 px-3 py-2"
+              value={fechaEfemeride}
+              onChange={(e) => setFechaEfemeride(e.target.value)}
+            />
+            <p className="text-xs text-neutral-500">
+              Fecha histórica del evento (ej: 15 de septiembre de 1810)
+            </p>
+          </div>
+        )}
 
         {/* Bloques dinámicos */}
         {bloques.map((b, idx) => (

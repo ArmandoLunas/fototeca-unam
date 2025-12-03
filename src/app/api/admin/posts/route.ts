@@ -45,6 +45,7 @@ export async function POST(req: NextRequest) {
     const tipo = formData.get('tipo') as string | null;
     const titulo = formData.get('titulo') as string | null;
     const blocksJson = formData.get('blocks') as string | null;
+    const fechaEfemeridesStr = formData.get('fechaEfemeride') as string | null;
 
     if (!tipo || !titulo || !blocksJson) {
       return NextResponse.json(
@@ -82,6 +83,7 @@ export async function POST(req: NextRequest) {
       data: {
         tipo,
         titulo,
+        fechaEfemeride: fechaEfemeridesStr ? new Date(fechaEfemeridesStr) : null,
         blocks: {
           create: blocksData,
         },
@@ -108,6 +110,7 @@ export async function PUT(req: NextRequest) {
     const tipo = formData.get('tipo') as string | null;
     const titulo = formData.get('titulo') as string | null;
     const blocksJson = formData.get('blocks') as string | null;
+    const fechaEfemeridesStr = formData.get('fechaEfemeride') as string | null;
 
     if (!id || !tipo || !titulo || !blocksJson) {
       return NextResponse.json(
@@ -147,6 +150,7 @@ export async function PUT(req: NextRequest) {
       data: {
         tipo,
         titulo,
+        fechaEfemeride: fechaEfemeridesStr ? new Date(fechaEfemeridesStr) : null,
         blocks: {
           deleteMany: {},      // borra todos los bloques anteriores
           create: blocksData,

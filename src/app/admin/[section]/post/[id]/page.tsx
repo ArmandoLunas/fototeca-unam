@@ -49,6 +49,7 @@ export default async function EditPostPage({ params }: Props) {
         postId={post.id}
         initialTitle={post.titulo}
         initialBlocks={initialBlocks}
+        initialFechaEfemeride={post.fechaEfemeride?.toISOString().split('T')[0] || null}
       />
     </div>
   );
