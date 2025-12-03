@@ -8,7 +8,7 @@ type SortOption = "date-desc" | "date-asc" | "alpha-asc" | "alpha-desc";
 
 interface PostBlock {
   id: string;
-  imageUrl: string | null;
+  imageUrls: string[];
 }
 
 interface Post {
@@ -107,7 +107,7 @@ export default function EfemeridesPage() {
       {/* Grid Layout */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {sortedPosts.map((post) => {
-          const firstImage = post.blocks.find((block) => block.imageUrl)?.imageUrl;
+          const firstImage = post.blocks.find((block) => block.imageUrls && block.imageUrls.length > 0)?.imageUrls?.[0];
 
           return (
             <Link
@@ -143,11 +143,15 @@ export default function EfemeridesPage() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
                       <span className="text-sm font-semibold text-blue-800">
-                        {new Date(post.fechaEfemeride).toLocaleDateString('es-MX', {
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric'
-                        })}
+                        {(() => {
+                          const date = new Date(post.fechaEfemeride);
+                          return new Intl.DateTimeFormat('es-MX', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            timeZone: 'UTC'
+                          }).format(date);
+                        })()}
                       </span>
                     </div>
                   )}

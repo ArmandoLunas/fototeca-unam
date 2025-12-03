@@ -5,7 +5,7 @@ type SectionBlock = {
   id: string;
   tituloSeccion: string;
   descripcion: string;
-  imagen?: File | null;
+  imagenes: File[];
 };
 
 type InitialBlock = {
@@ -35,7 +35,7 @@ export default function NewPostForm({
   const [titulo, setTitulo] = useState(initialTitle ?? '');
   const [fechaEfemeride, setFechaEfemeride] = useState(initialFechaEfemeride ?? '');
   const [bloques, setBloques] = useState<SectionBlock[]>([
-    { id: crypto.randomUUID(), tituloSeccion: '', descripcion: '', imagen: null },
+    { id: crypto.randomUUID(), tituloSeccion: '', descripcion: '', imagenes: [] },
   ]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -46,7 +46,7 @@ export default function NewPostForm({
           id: crypto.randomUUID(),
           tituloSeccion: b.title,
           descripcion: b.content,
-          imagen: null,
+          imagenes: [],
         }))
       );
     }
@@ -55,12 +55,55 @@ export default function NewPostForm({
   function addBloque() {
     setBloques(prev => [
       ...prev,
-      { id: crypto.randomUUID(), tituloSeccion: '', descripcion: '', imagen: null },
+      { id: crypto.randomUUID(), tituloSeccion: '', descripcion: '', imagenes: [] },
     ]);
   }
 
-  function setImagen(idx: number, file: File | null) {
-    setBloques(prev => prev.map((b, i) => (i === idx ? { ...b, imagen: file } : b)));
+  function setImagenes(idx: number, files: FileList | null) {
+    if (!files) return;
+    const fileArray = Array.from(files);
+    setBloques(prev => prev.map((b, i) => (i === idx ? { ...b, imagenes: fileArray } : b)));
+  }
+
+  function removeImagen(bloqueIdx: number, imagenIdx: number) {
+    setBloques(prev => prev.map((b, i) => {
+      if (i === bloqueIdx) {
+        return { ...b, imagenes: b.imagenes.filter((_, idx) => idx !== imagenIdx) };
+      }
+      return b;
+    }));
+  }
+
+  // Convert dd/mm/yyyy to ISO format (yyyy-mm-dd) for database storage
+  function convertDateToISO(dateStr: string): string {
+    const parts = dateStr.split('/');
+    if (parts.length !== 3) return '';
+    const [day, month, year] = parts;
+    // Return ISO date string (yyyy-mm-dd) which will be stored as UTC midnight
+    return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+  }
+
+  // Convert ISO date (yyyy-mm-dd) to dd/mm/yyyy for display
+  function convertISOToDisplay(isoDate: string): string {
+    const [year, month, day] = isoDate.split('-');
+    return `${day}/${month}/${year}`;
+  }
+
+  // Handle date input change
+  function handleDateChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const value = e.target.value; // This will be in yyyy-mm-dd format from the date input
+    if (value) {
+      // Convert to dd/mm/yyyy for display
+      setFechaEfemeride(convertISOToDisplay(value));
+    } else {
+      setFechaEfemeride('');
+    }
+  }
+
+  // Get the value for the date input (yyyy-mm-dd format)
+  function getDateInputValue(): string {
+    if (!fechaEfemeride) return '';
+    return convertDateToISO(fechaEfemeride);
   }
 
   async function onSubmit(e: React.FormEvent) {
@@ -75,7 +118,10 @@ export default function NewPostForm({
 
       // Solo agregar fechaEfemeride si el tipo es "Efeméride" y hay una fecha
       if (tipo === 'Efeméride' && fechaEfemeride) {
-        form.append('fechaEfemeride', fechaEfemeride);
+        const isoDate = convertDateToISO(fechaEfemeride);
+        if (isoDate) {
+          form.append('fechaEfemeride', isoDate);
+        }
       }
 
       const blocksPayload = bloques.map(b => ({
@@ -84,23 +130,31 @@ export default function NewPostForm({
       }));
       form.append('blocks', JSON.stringify(blocksPayload));
 
-      bloques.forEach((b, idx) => {
-        if (b.imagen) form.append(`image_${idx}`, b.imagen);
+      bloques.forEach((b, bloqueIdx) => {
+        b.imagenes.forEach((img, imgIdx) => {
+          form.append(`image_${bloqueIdx}_${imgIdx}`, img);
+        });
       });
 
       const method = postId ? 'PUT' : 'POST';
       const res = await fetch('/api/admin/posts', { method, body: form });
-      const json = await res.json();
 
-      if (json.ok) {
+      console.log('Response status:', res.status);
+      console.log('Response ok:', res.ok);
+
+      const json = await res.json();
+      console.log('Response JSON:', json);
+
+      if (res.ok && json.ok) {
         alert(postId ? 'Publicación actualizada' : 'Publicación creada');
-        // aquí ya haces router.push o lo que tengas
+        window.location.href = '/admin/posts';
       } else {
-        alert('Error: ' + (json.error || 'unknown'));
+        console.error('Error from API:', json);
+        alert('Error: ' + (json.error || json.details || 'unknown error'));
       }
     } catch (err) {
-      console.error(err);
-      alert('Ocurrió un error al guardar');
+      console.error('Error submitting form:', err);
+      alert('Ocurrió un error al guardar: ' + (err instanceof Error ? err.message : 'unknown'));
     } finally {
       setIsSubmitting(false);
     }
@@ -150,11 +204,11 @@ export default function NewPostForm({
             <input
               type="date"
               className="rounded-md border text-neutral-800 border-neutral-300 px-3 py-2"
-              value={fechaEfemeride}
-              onChange={(e) => setFechaEfemeride(e.target.value)}
+              value={getDateInputValue()}
+              onChange={handleDateChange}
             />
             <p className="text-xs text-neutral-500">
-              Fecha histórica del evento (ej: 15 de septiembre de 1810)
+              Fecha histórica del evento. Se mostrará como: {fechaEfemeride || 'dd/mm/yyyy'}
             </p>
           </div>
         )}
@@ -191,25 +245,44 @@ export default function NewPostForm({
 
             <div className="grid gap-2">
               <label className="text-sm text-neutral-400 font-medium">
-                Agregar imagen/rostro (Opcional)
+                Agregar imágenes (Opcional)
               </label>
               <label
-                className="flex h-40 items-center justify-center rounded-md border-2 border-dashed border-neutral-300 text-neutral-400 cursor-pointer"
+                className="flex h-40 items-center justify-center rounded-md border-2 border-dashed border-neutral-300 text-neutral-400 cursor-pointer hover:border-blue-400 transition"
               >
                 <div className="text-center">
                   <div className="text-4xl mb-2">↑</div>
-                  <div className="text-xs">Haz clic para seleccionar</div>
+                  <div className="text-xs">Haz clic para seleccionar múltiples imágenes</div>
                 </div>
                 <input
                   type="file"
                   accept="image/*"
+                  multiple
                   className="hidden"
-                  onChange={(e) => setImagen(idx, e.target.files?.[0] ?? null)}
+                  onChange={(e) => setImagenes(idx, e.target.files)}
                 />
               </label>
-              {b.imagen && (
-                <div className="text-xs text-neutral-600">
-                  Archivo: {b.imagen.name}
+              {b.imagenes.length > 0 && (
+                <div className="space-y-1">
+                  <p className="text-xs text-neutral-600 font-medium">
+                    {b.imagenes.length} imagen{b.imagenes.length > 1 ? 'es' : ''} seleccionada{b.imagenes.length > 1 ? 's' : ''}:
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {b.imagenes.map((img, imgIdx) => (
+                      <div key={imgIdx} className="relative group">
+                        <div className="text-xs bg-neutral-100 px-2 py-1 rounded border border-neutral-300">
+                          {img.name}
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => removeImagen(idx, imgIdx)}
+                          className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>

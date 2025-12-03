@@ -124,12 +124,12 @@ model Post {
 }
 
 model PostBlock {
-  id            String  @id @default(cuid())
+  id            String   @id @default(cuid())
   postId        String
   order         Int
   tituloSeccion String?
   descripcion   String
-  imageUrl      String?
+  imageUrls     String[]
 
   post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
 

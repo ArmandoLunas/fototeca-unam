@@ -10,7 +10,7 @@ export async function GET() {
                 blocks: {
                     select: {
                         id: true,
-                        imageUrl: true,
+                        imageUrls: true,
                     },
                 },
             },

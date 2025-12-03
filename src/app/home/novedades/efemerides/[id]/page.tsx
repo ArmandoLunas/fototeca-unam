@@ -26,8 +26,7 @@ export default async function EfemeridePage({ params }: { params: { id: string }
       fechaEfemeride: true,
       blocks: {
         take: 1,
-        where: { imageUrl: { not: null } },
-        select: { imageUrl: true }
+        select: { imageUrls: true }
       }
     }
   });
@@ -37,18 +36,22 @@ export default async function EfemeridePage({ params }: { params: { id: string }
     .sort(() => 0.5 - Math.random())
     .slice(0, 3);
 
-  // Extract all images from blocks
+  // Extract all images from blocks (flatten imageUrls arrays)
   const images = post.blocks
-    .map(b => b.imageUrl)
+    .flatMap(b => b.imageUrls)
     .filter((url): url is string => !!url);
 
-  // Format date if available
+  // Format date if available (use UTC to avoid timezone issues)
   const formattedDate = post.fechaEfemeride
-    ? new Date(post.fechaEfemeride).toLocaleDateString('es-MX', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    })
+    ? (() => {
+      const date = new Date(post.fechaEfemeride);
+      return new Intl.DateTimeFormat('es-MX', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        timeZone: 'UTC'
+      }).format(date);
+    })()
     : null;
 
   return (
@@ -96,13 +99,17 @@ export default async function EfemeridePage({ params }: { params: { id: string }
           <h3 className="text-2xl font-bold text-blue-900 mb-6">Te podría interesar</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {recommendations.map((rec) => {
-              const recImage = rec.blocks[0]?.imageUrl;
+              const recImage = rec.blocks[0]?.imageUrls?.[0];
               const recDate = rec.fechaEfemeride
-                ? new Date(rec.fechaEfemeride).toLocaleDateString('es-MX', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric'
-                })
+                ? (() => {
+                  const date = new Date(rec.fechaEfemeride);
+                  return new Intl.DateTimeFormat('es-MX', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    timeZone: 'UTC'
+                  }).format(date);
+                })()
                 : null;
 
               return (
