@@ -31,7 +31,7 @@ export default function AdminShell({ children }: { children: ReactNode }) {
       {/* HEADER */}
       <header className="h-32 bg-[#0f2743] text-white flex items-center justify-between px-5">
         <div className="flex items-center gap-4">
-          <Image src="/fi-escudo-color.png" alt="Escudo" width={100} height={100} />
+          <Image src="/escudoFIblanco.png" alt="Escudo" width={100} height={100} />
           <span className="text-5xl font-semibold tracking-wide">Fototeca</span>
           <span className="text-white/60 text-3xl">|</span>
           <span className="text-2xl">Administración</span>

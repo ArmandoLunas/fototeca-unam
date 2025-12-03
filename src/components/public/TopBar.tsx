@@ -73,7 +73,7 @@ export default function TopBar({ section }: TopBarProps) {
               className="flex items-center gap-3"
             >
               <Image
-                src="/fi-escudo-color.png"
+                src="/escudoFIblanco.png"
                 alt="Escudo FI UNAM"
                 width={100}
                 height={100}
