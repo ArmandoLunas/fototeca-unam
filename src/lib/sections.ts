@@ -28,9 +28,9 @@ export const SECTIONS: SectionConfig[] = [
   { slug: 'politicas',    label: 'Políticas',    showInAdminSidebar: true },
 
   // Estas no aparecen en el admin:
-  { slug: 'cuenta',    label: 'Mi cuenta' },
-  { slug: 'aportaciones',    label: 'Aportaciones' },
-  { slug: 'favoritos',    label: 'Mis favoritos' },
+  { slug: 'cuenta',    label: 'Mi cuenta',           showInAdminSidebar: false },
+  { slug: 'aportaciones',    label: 'Aportaciones',  showInAdminSidebar: false },
+  { slug: 'favoritos',    label: 'Mis favoritos',    showInAdminSidebar: false },
 ];
 
 export const DEFAULT_SECTION: SectionSlug = 'sabias-que';

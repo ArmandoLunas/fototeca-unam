@@ -1,16 +1,17 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { SECTIONS } from '@/lib/sections';
+import { ADMIN_SIDEBAR_SECTIONS } from '@/lib/sections';
 
 export default function AdminSidebar() {
   const pathname = usePathname();
   return (
     <nav className="py-8">
       <ul className="flex flex-col gap-2">
-        {SECTIONS.map(({ slug, label }, idx) => {
+        {ADMIN_SIDEBAR_SECTIONS.map(({ slug, label }) => {
           const href = `/admin/${slug}`;
           const active = pathname?.startsWith(href);
+
           return (
             <li key={slug}>
               <Link
