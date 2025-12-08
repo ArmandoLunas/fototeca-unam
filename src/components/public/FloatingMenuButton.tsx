@@ -105,7 +105,7 @@ export default function FloatingMenuButton() {
                             setOpenNovedades(false);
                           }}
                         >
-                          ¿Sabías Qué?
+                          ¿Sabías qué?
                         </Link>
                       </li>
                       <li>
