@@ -22,7 +22,7 @@ export default async function SabiasQuePage() {
             </h2>
 
             <p className="text-neutral-600 text-sm mt-2">
-              Publicado el {post.createdAt.toLocaleDateString()}
+              Publicado el {post.createdAt.toLocaleDateString().toLocaleUpperCase()}
             </p>
 
             <a
