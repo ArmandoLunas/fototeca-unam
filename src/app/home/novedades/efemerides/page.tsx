@@ -150,7 +150,7 @@ export default function EfemeridesPage() {
                             month: 'long',
                             day: 'numeric',
                             timeZone: 'UTC'
-                          }).format(date);
+                          }).format(date).toLowerCase();
                         })()}
                       </span>
                     </div>

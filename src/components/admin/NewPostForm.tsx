@@ -5,13 +5,14 @@ type SectionBlock = {
   id: string;
   tituloSeccion: string;
   descripcion: string;
-  imagenes: File[];
+  existingImageUrls: string[];  // URLs from database
+  imagenes: File[];             // New files to upload
 };
 
 type InitialBlock = {
   title: string;
   content: string;
-  imageUrl?: string | null;
+  imageUrls?: string[];  // Changed from imageUrl to imageUrls array
 };
 
 type Props = {
@@ -20,6 +21,7 @@ type Props = {
   initialTitle?: string;
   initialBlocks?: InitialBlock[];
   initialFechaEfemeride?: string | null; // fecha manual para Efemérides
+  section?: string;      // section slug for redirect
 };
 
 export default function NewPostForm({
@@ -28,6 +30,7 @@ export default function NewPostForm({
   initialTitle,
   initialBlocks,
   initialFechaEfemeride,
+  section,
 }: Props) {
   // Tipo fijo según la pantalla / menú desde donde entras
   const [tipo] = useState(defaultType);
@@ -35,9 +38,15 @@ export default function NewPostForm({
   const [titulo, setTitulo] = useState(initialTitle ?? '');
   const [fechaEfemeride, setFechaEfemeride] = useState(initialFechaEfemeride ?? '');
   const [bloques, setBloques] = useState<SectionBlock[]>([
-    { id: crypto.randomUUID(), tituloSeccion: '', descripcion: '', imagenes: [] },
+    { id: crypto.randomUUID(), tituloSeccion: '', descripcion: '', existingImageUrls: [], imagenes: [] },
   ]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (initialTitle) {
+      setTitulo(initialTitle);
+    }
+  }, [initialTitle]);
 
   useEffect(() => {
     if (initialBlocks && initialBlocks.length > 0) {
@@ -46,16 +55,25 @@ export default function NewPostForm({
           id: crypto.randomUUID(),
           tituloSeccion: b.title,
           descripcion: b.content,
+          existingImageUrls: b.imageUrls || [],  // Preserve existing images
           imagenes: [],
         }))
       );
     }
   }, [initialBlocks]);
 
+  useEffect(() => {
+    if (initialFechaEfemeride) {
+      // Convert from ISO (yyyy-mm-dd) to display format (dd/mm/yyyy)
+      const [year, month, day] = initialFechaEfemeride.split('-');
+      setFechaEfemeride(`${day}/${month}/${year}`);
+    }
+  }, [initialFechaEfemeride]);
+
   function addBloque() {
     setBloques(prev => [
       ...prev,
-      { id: crypto.randomUUID(), tituloSeccion: '', descripcion: '', imagenes: [] },
+      { id: crypto.randomUUID(), tituloSeccion: '', descripcion: '', existingImageUrls: [], imagenes: [] },
     ]);
   }
 
@@ -69,6 +87,15 @@ export default function NewPostForm({
     setBloques(prev => prev.map((b, i) => {
       if (i === bloqueIdx) {
         return { ...b, imagenes: b.imagenes.filter((_, idx) => idx !== imagenIdx) };
+      }
+      return b;
+    }));
+  }
+
+  function removeExistingImage(bloqueIdx: number, imageUrl: string) {
+    setBloques(prev => prev.map((b, i) => {
+      if (i === bloqueIdx) {
+        return { ...b, existingImageUrls: b.existingImageUrls.filter(url => url !== imageUrl) };
       }
       return b;
     }));
@@ -127,6 +154,7 @@ export default function NewPostForm({
       const blocksPayload = bloques.map(b => ({
         title: b.tituloSeccion,
         content: b.descripcion,
+        existingImageUrls: b.existingImageUrls,  // Include existing images
       }));
       form.append('blocks', JSON.stringify(blocksPayload));
 
@@ -147,7 +175,12 @@ export default function NewPostForm({
 
       if (res.ok && json.ok) {
         alert(postId ? 'Publicación actualizada' : 'Publicación creada');
-        window.location.href = '/admin/posts';
+        // Redirect to the correct section page
+        if (section) {
+          window.location.href = `/admin/${section}`;
+        } else {
+          window.location.href = '/admin';
+        }
       } else {
         console.error('Error from API:', json);
         alert('Error: ' + (json.error || json.details || 'unknown error'));
@@ -247,6 +280,33 @@ export default function NewPostForm({
               <label className="text-sm text-neutral-400 font-medium">
                 Agregar imágenes (Opcional)
               </label>
+
+              {/* Display existing images from database */}
+              {b.existingImageUrls.length > 0 && (
+                <div className="space-y-1 mb-3">
+                  <p className="text-xs text-neutral-600 font-medium">
+                    Imágenes actuales ({b.existingImageUrls.length}):
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {b.existingImageUrls.map((url, urlIdx) => (
+                      <div key={urlIdx} className="relative group">
+                        <div className="text-xs bg-blue-50 px-2 py-1 rounded border border-blue-300 flex items-center gap-1">
+                          <span>🖼️</span>
+                          <span>{url.split('/').pop()}</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => removeExistingImage(idx, url)}
+                          className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <label
                 className="flex h-40 items-center justify-center rounded-md border-2 border-dashed border-neutral-300 text-neutral-400 cursor-pointer hover:border-blue-400 transition"
               >

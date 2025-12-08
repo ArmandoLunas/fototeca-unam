@@ -137,22 +137,23 @@ export async function PUT(req: NextRequest) {
     const blocksPayload = JSON.parse(blocksJson) as {
       title: string;
       content: string;
+      existingImageUrls?: string[];  // Add this field
     }[];
 
     const blocksData = [];
 
     for (let i = 0; i < blocksPayload.length; i++) {
       const b = blocksPayload[i];
-      const imageUrls: string[] = [];
+      const imageUrls: string[] = [...(b.existingImageUrls || [])];  // Start with existing URLs
 
-      // Check for multiple images: image_0_0, image_0_1, etc.
+      // Check for new images to upload: image_0_0, image_0_1, etc.
       let imgIdx = 0;
       while (true) {
         const file = formData.get(`image_${i}_${imgIdx}`);
         if (!file || !(file instanceof File) || file.size === 0) break;
 
         const imageUrl = await saveImageToDisk(file, i * 100 + imgIdx);
-        imageUrls.push(imageUrl);
+        imageUrls.push(imageUrl);  // Add new images to the array
         imgIdx++;
       }
 
@@ -160,7 +161,7 @@ export async function PUT(req: NextRequest) {
         order: i,
         tituloSeccion: b.title || null,
         descripcion: b.content,
-        imageUrls,
+        imageUrls,  // Contains both existing and new images
       });
     }
 

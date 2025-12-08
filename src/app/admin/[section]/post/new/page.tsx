@@ -10,7 +10,7 @@ export default function NewPostPage({ params }: { params: { section: string } })
         Nueva publicación de {labelFromSlug(section as any)}
       </h1>
 
-      <NewPostForm defaultType={labelFromSlug(section as any)} />
+      <NewPostForm defaultType={labelFromSlug(section as any)} section={section} />
     </div>
   );
 }
