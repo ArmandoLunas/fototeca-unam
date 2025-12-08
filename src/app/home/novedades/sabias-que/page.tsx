@@ -8,7 +8,7 @@ export default async function SabiasQuePage() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold text-blue-900 mb-6">¿Sabías Qué?</h1>
+      <h1 className="text-3xl font-bold text-blue-900 mb-6">¿Sabías qué?</h1>
 
       {posts.length === 0 && (
         <p className="text-neutral-600">No hay publicaciones aún.</p>
