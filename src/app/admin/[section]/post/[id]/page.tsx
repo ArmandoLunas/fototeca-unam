@@ -33,7 +33,7 @@ export default async function EditPostPage({ params }: Props) {
   const initialBlocks = post.blocks.map(b => ({
     title: b.tituloSeccion || '',
     content: b.descripcion,
-    imageUrl: b.imageUrl || undefined,
+    imageUrls: b.imageUrls || [],  // Pass the array of image URLs
   }));
 
   const label = labelFromSlug(section as any);
@@ -49,6 +49,8 @@ export default async function EditPostPage({ params }: Props) {
         postId={post.id}
         initialTitle={post.titulo}
         initialBlocks={initialBlocks}
+        initialFechaEfemeride={post.fechaEfemeride?.toISOString().split('T')[0] || null}
+        section={section}
       />
     </div>
   );

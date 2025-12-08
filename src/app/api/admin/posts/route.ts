@@ -45,8 +45,12 @@ export async function POST(req: NextRequest) {
     const tipo = formData.get('tipo') as string | null;
     const titulo = formData.get('titulo') as string | null;
     const blocksJson = formData.get('blocks') as string | null;
+    const fechaEfemeridesStr = formData.get('fechaEfemeride') as string | null;
+
+    console.log('POST /api/admin/posts - Received:', { tipo, titulo, fechaEfemeridesStr, blocksJson });
 
     if (!tipo || !titulo || !blocksJson) {
+      console.error('Missing required fields:', { tipo, titulo, blocksJson });
       return NextResponse.json(
         { ok: false, error: 'Faltan campos obligatorios (tipo, titulo, blocks)' },
         { status: 400 }
@@ -62,26 +66,37 @@ export async function POST(req: NextRequest) {
 
     for (let i = 0; i < blocksPayload.length; i++) {
       const b = blocksPayload[i];
-      const file = formData.get(`image_${i}`);
+      const imageUrls: string[] = [];
 
-      let imageUrl: string | undefined;
+      // Check for multiple images: image_0_0, image_0_1, etc.
+      let imgIdx = 0;
+      while (true) {
+        const file = formData.get(`image_${i}_${imgIdx}`);
+        if (!file || !(file instanceof File) || file.size === 0) break;
 
-      if (file && file instanceof File && file.size > 0) {
-        imageUrl = await saveImageToDisk(file, i);
+        console.log(`Saving image_${i}_${imgIdx}:`, file.name);
+        const imageUrl = await saveImageToDisk(file, i * 100 + imgIdx);
+        imageUrls.push(imageUrl);
+        imgIdx++;
       }
+
+      console.log(`Block ${i}: ${imageUrls.length} images`);
 
       blocksData.push({
         order: i,
         tituloSeccion: b.title || null,
         descripcion: b.content,
-        imageUrl: imageUrl || null,
+        imageUrls,
       });
     }
+
+    console.log('Creating post with data:', { tipo, titulo, fechaEfemeride: fechaEfemeridesStr, blocksCount: blocksData.length });
 
     const post = await prisma.post.create({
       data: {
         tipo,
         titulo,
+        fechaEfemeride: fechaEfemeridesStr ? new Date(fechaEfemeridesStr) : null,
         blocks: {
           create: blocksData,
         },
@@ -89,11 +104,13 @@ export async function POST(req: NextRequest) {
       include: { blocks: true },
     });
 
+    console.log('Post created successfully:', post.id);
+
     return NextResponse.json({ ok: true, post }, { status: 201 });
   } catch (err) {
-    console.error(err);
+    console.error('Error creating post:', err);
     return NextResponse.json(
-      { ok: false, error: 'Error interno al crear la publicación' },
+      { ok: false, error: 'Error interno al crear la publicación', details: err instanceof Error ? err.message : String(err) },
       { status: 500 }
     );
   }
@@ -108,6 +125,7 @@ export async function PUT(req: NextRequest) {
     const tipo = formData.get('tipo') as string | null;
     const titulo = formData.get('titulo') as string | null;
     const blocksJson = formData.get('blocks') as string | null;
+    const fechaEfemeridesStr = formData.get('fechaEfemeride') as string | null;
 
     if (!id || !tipo || !titulo || !blocksJson) {
       return NextResponse.json(
@@ -119,25 +137,31 @@ export async function PUT(req: NextRequest) {
     const blocksPayload = JSON.parse(blocksJson) as {
       title: string;
       content: string;
+      existingImageUrls?: string[];  // Add this field
     }[];
 
     const blocksData = [];
 
     for (let i = 0; i < blocksPayload.length; i++) {
       const b = blocksPayload[i];
-      const file = formData.get(`image_${i}`);
+      const imageUrls: string[] = [...(b.existingImageUrls || [])];  // Start with existing URLs
 
-      let imageUrl: string | undefined;
+      // Check for new images to upload: image_0_0, image_0_1, etc.
+      let imgIdx = 0;
+      while (true) {
+        const file = formData.get(`image_${i}_${imgIdx}`);
+        if (!file || !(file instanceof File) || file.size === 0) break;
 
-      if (file && file instanceof File && file.size > 0) {
-        imageUrl = await saveImageToDisk(file, i);
+        const imageUrl = await saveImageToDisk(file, i * 100 + imgIdx);
+        imageUrls.push(imageUrl);  // Add new images to the array
+        imgIdx++;
       }
 
       blocksData.push({
         order: i,
         tituloSeccion: b.title || null,
         descripcion: b.content,
-        imageUrl: imageUrl || null,
+        imageUrls,  // Contains both existing and new images
       });
     }
 
@@ -147,6 +171,7 @@ export async function PUT(req: NextRequest) {
       data: {
         tipo,
         titulo,
+        fechaEfemeride: fechaEfemeridesStr ? new Date(fechaEfemeridesStr) : null,
         blocks: {
           deleteMany: {},      // borra todos los bloques anteriores
           create: blocksData,
