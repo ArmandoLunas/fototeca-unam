@@ -111,9 +111,15 @@ model Category {
 }
 
 model Post {
-  id             String    @id @default(cuid())
-  tipo           String // Ej: "Biografías", "Efemérides", "Exposiciones", "¿Sabías Qué?"
-  titulo         String
+  id     String @id @default(cuid())
+  tipo   String // Ej: "Biografías", "Efemérides", "Exposiciones", "¿Sabías Qué?"
+  titulo String
+
+  // New fields for Biografías
+  nombres         String? // First/given names
+  apellidoPaterno String? // Paternal surname
+  apellidoMaterno String? // Maternal surname
+
   fechaInicio    DateTime? // opcional
   fechaFin       DateTime? // opcional
   fechaEfemeride DateTime? // fecha manual para Efemérides (ej: "15 de septiembre de 1810")
