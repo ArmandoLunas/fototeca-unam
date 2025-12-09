@@ -47,6 +47,11 @@ export async function POST(req: NextRequest) {
     const blocksJson = formData.get('blocks') as string | null;
     const fechaEfemeridesStr = formData.get('fechaEfemeride') as string | null;
 
+    // Extract name fields for biografías
+    const nombres = formData.get('nombres') as string | null;
+    const apellidoPaterno = formData.get('apellidoPaterno') as string | null;
+    const apellidoMaterno = formData.get('apellidoMaterno') as string | null;
+
     console.log('POST /api/admin/posts - Received:', { tipo, titulo, fechaEfemeridesStr, blocksJson });
 
     if (!tipo || !titulo || !blocksJson) {
@@ -96,6 +101,9 @@ export async function POST(req: NextRequest) {
       data: {
         tipo,
         titulo,
+        nombres: nombres || null,
+        apellidoPaterno: apellidoPaterno || null,
+        apellidoMaterno: apellidoMaterno || null,
         fechaEfemeride: fechaEfemeridesStr ? new Date(fechaEfemeridesStr) : null,
         blocks: {
           create: blocksData,
@@ -126,6 +134,11 @@ export async function PUT(req: NextRequest) {
     const titulo = formData.get('titulo') as string | null;
     const blocksJson = formData.get('blocks') as string | null;
     const fechaEfemeridesStr = formData.get('fechaEfemeride') as string | null;
+
+    // Extract name fields for biografías
+    const nombres = formData.get('nombres') as string | null;
+    const apellidoPaterno = formData.get('apellidoPaterno') as string | null;
+    const apellidoMaterno = formData.get('apellidoMaterno') as string | null;
 
     if (!id || !tipo || !titulo || !blocksJson) {
       return NextResponse.json(
@@ -171,6 +184,9 @@ export async function PUT(req: NextRequest) {
       data: {
         tipo,
         titulo,
+        nombres: nombres || null,
+        apellidoPaterno: apellidoPaterno || null,
+        apellidoMaterno: apellidoMaterno || null,
         fechaEfemeride: fechaEfemeridesStr ? new Date(fechaEfemeridesStr) : null,
         blocks: {
           deleteMany: {},      // borra todos los bloques anteriores
