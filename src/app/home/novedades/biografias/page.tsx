@@ -125,9 +125,9 @@ export default function BiografiasPage() {
         </div>
       )}
 
-      {/* Grid Layout */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredPosts.map((post) => {
+      {/* Grid Layout - 4 columns with squared images */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {sortedPosts.map((post) => {
           const firstImage = post.blocks.find((block) => block.imageUrls && block.imageUrls.length > 0)?.imageUrls?.[0];
 
           // Display name: use name parts if available, otherwise use titulo
@@ -142,8 +142,8 @@ export default function BiografiasPage() {
               className="group"
             >
               <div className="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 h-full flex flex-col">
-                {/* Image */}
-                <div className="relative w-full h-48 bg-neutral-200">
+                {/* Squared Image */}
+                <div className="relative w-full aspect-square bg-neutral-200">
                   {firstImage ? (
                     <Image
                       src={firstImage}
