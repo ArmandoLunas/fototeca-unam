@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import CategorySearch from "@/components/public/CategorySearch";
 
 type SortOption = "apellido-asc" | "apellido-desc";
 
@@ -25,11 +27,18 @@ export default function BiografiasPage() {
   const [sortedPosts, setSortedPosts] = useState<Post[]>([]);
   const [sortOption, setSortOption] = useState<SortOption>("apellido-asc");
   const [loading, setLoading] = useState(true);
+  
+  const searchParams = useSearchParams();
+  const q = searchParams?.get("q")?.trim() || "";
 
   useEffect(() => {
     async function fetchPosts() {
       try {
-        const response = await fetch("/api/posts/biografias");
+        const url = q 
+          ? `/api/posts/biografias?q=${encodeURIComponent(q)}`
+          : "/api/posts/biografias";
+        
+        const response = await fetch(url);
         const data = await response.json();
         setPosts(data);
         setSortedPosts(data);
@@ -40,7 +49,7 @@ export default function BiografiasPage() {
       }
     }
     fetchPosts();
-  }, []);
+  }, [q]);
 
   useEffect(() => {
     const sorted = [...posts].sort((a, b) => {
@@ -65,10 +74,23 @@ export default function BiografiasPage() {
     );
   }
 
+  const filteredPosts = q 
+    ? sortedPosts.filter(post => 
+        post.titulo.toLowerCase().includes(q.toLowerCase()) ||
+        (post.apellidoPaterno?.toLowerCase().includes(q.toLowerCase())) ||
+        (post.nombres?.toLowerCase().includes(q.toLowerCase()))
+      )
+    : sortedPosts;
+
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-blue-900">Biografías</h1>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+        <div>
+          <h1 className="text-3xl font-bold text-blue-900 mb-2">Biografías</h1>
+          <p className="text-neutral-600">
+            {q ? `Resultados para: "${q}"` : "Busca y ordena biografías de investigadores"}
+          </p>
+        </div>
 
         {/* Sort Menu */}
         <div className="flex items-center gap-2">
@@ -87,15 +109,25 @@ export default function BiografiasPage() {
         </div>
       </div>
 
-      {sortedPosts.length === 0 && (
-        <p className="text-neutral-600">
-          No hay biografías registradas aún.
-        </p>
+      {/* Search Bar */}
+      <div className="mb-8">
+        <CategorySearch placeholder="Buscar biografías por nombre o apellido..." />
+      </div>
+
+      {filteredPosts.length === 0 && (
+        <div className="text-center py-12">
+          <p className="text-neutral-600 text-lg">
+            {q 
+              ? `No se encontraron biografías para "${q}"`
+              : "No hay biografías registradas aún."
+            }
+          </p>
+        </div>
       )}
 
       {/* Grid Layout */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {sortedPosts.map((post) => {
+        {filteredPosts.map((post) => {
           const firstImage = post.blocks.find((block) => block.imageUrls && block.imageUrls.length > 0)?.imageUrls?.[0];
 
           // Display name: use name parts if available, otherwise use titulo

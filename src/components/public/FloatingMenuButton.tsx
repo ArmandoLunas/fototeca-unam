@@ -149,6 +149,7 @@ export default function FloatingMenuButton() {
                   </Link>
                 </li>
               )}
+              
 
               <li>
                 <Link
@@ -159,6 +160,17 @@ export default function FloatingMenuButton() {
                   Exposiciones
                 </Link>
               </li>
+              {session && (
+                <li>
+                  <Link
+                    href="/home/aportaciones"
+                    className="block px-4 py-3 hover:bg-neutral-50"
+                    onClick={() => setOpen(false)}
+                  >
+                    Aportaciones
+                  </Link>
+                </li>
+              )}
             </ul>
           </nav>
         </div>

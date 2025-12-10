@@ -5,7 +5,7 @@ import Footer from '@/components/layout/Footer';
 
 export default function HomeLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="min-h-screen flex flex-col bg-neutral-100">
+    <div className="min-h-screen flex flex-col bg-[#fff9e0]">
       {/* Botón flotante (no afecta al layout porque suele ir fixed/absolute) */}
         <FloatingMenuButton />
       {/* BARRA SUPERIOR PÚBLICA */}
