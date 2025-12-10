@@ -61,16 +61,17 @@ export default function TopBar({ section }: TopBarProps) {
   }, []);
 
   return (
-    <div className="w-full bg-[#caa357] text-white relative">
+    <div className="w-full bg-[#E03A3E] text-white relative">
       <div className="max-w-6xl mx-auto px-4">
         <div className="h-32 flex items-center justify-between">
-          {/* IZQUIERDA: LOGO + SECCIÓN */}
+          {/* IZQUIERDA: ESCUDO + LOGO IMAGEN + SECCIÓN */}
           <div className="flex items-center gap-6">
+            {/* Escudo → sitio FI */}
             <Link
               href="https://www.ingenieria.unam.mx/"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-3"
+              className="flex items-center"
             >
               <Image
                 src="/escudoFIblanco.png"
@@ -78,13 +79,27 @@ export default function TopBar({ section }: TopBarProps) {
                 width={100}
                 height={100}
               />
-              <span className="text-5xl font-semibold">Fototeca</span>
             </Link>
 
+            {/* Logo completo de la Fototeca como imagen → home */}
+            <Link
+              href="/home" // ajusta si tu home es otra ruta
+              className="flex items-center"
+            >
+              <Image
+                src="/Fototeca.png" 
+                alt="Fototeca digital de la Facultad de Ingeniería"
+                width={260}  // ajusta según el tamaño de tu imagen
+                height={80}
+                priority
+              />
+            </Link>
+
+            {/* Nombre de sección (si aplica) */}
             {sectionLabel && (
               <>
-                <span className="text-white/80">|</span>
-                <span className="text-base text-white/90">
+                <span className="text-white/80 hidden sm:inline">|</span>
+                <span className="text-base text-white/90 hidden sm:inline">
                   {sectionLabel}
                 </span>
               </>
@@ -119,7 +134,6 @@ export default function TopBar({ section }: TopBarProps) {
               </Link>
             )}
 
-
             {/* SI HAY SESIÓN → MENÚ DE USUARIO */}
             {session && (
               <div className="relative" ref={userMenuRef}>
@@ -151,7 +165,6 @@ export default function TopBar({ section }: TopBarProps) {
                 {/* DROPDOWN USUARIO */}
                 {userMenu && (
                   <div className="absolute right-0 mt-2 w-48 bg-white text-neutral-800 rounded shadow-lg py-2 z-50">
-                    {/* 👇 Solo admins ven esto */}
                     {isAdmin && (
                       <Link
                         href="/admin"
@@ -168,22 +181,6 @@ export default function TopBar({ section }: TopBarProps) {
                       onClick={() => setUserMenu(false)}
                     >
                       Cuenta
-                    </Link>
-
-                    <Link
-                      href="/home/aportaciones"
-                      className="block px-4 py-2 hover:bg-neutral-200 text-sm"
-                      onClick={() => setUserMenu(false)}
-                    >
-                      Aportaciones
-                    </Link>
-
-                    <Link
-                      href="/home/favoritos"
-                      className="block px-4 py-2 hover:bg-neutral-200 text-sm"
-                      onClick={() => setUserMenu(false)}
-                    >
-                      Favoritos
                     </Link>
 
                     <button
@@ -214,16 +211,8 @@ export default function TopBar({ section }: TopBarProps) {
               </div>
             )}
 
-            {/* Imagen extra al extremo derecho */}
-            <div className="hidden md:block">
-              <Image
-                src="/LOGOFotoTeca.png"
-                alt="Logo extra"
-                width={150}
-                height={150}
-                className="rounded-full"
-              />
-            </div>
+            {/* Imagen extra al extremo derecho (si la quieres seguir usando) */}
+            
           </div>
         </div>
 
