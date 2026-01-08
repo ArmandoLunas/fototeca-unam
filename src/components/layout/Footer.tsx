@@ -3,12 +3,12 @@ import Image from 'next/image';
 
 export default function Footer() {
   return (
-    <footer className="w-full bg-black/95 text-white text-xs py-15 px-4">
+    <footer className="w-full bg-[#000000] text-white text-xs py-15 px-4">
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           
           <Image
-            src="/LogoBlanco.png"
+            src="/Blank.png"
             alt="UNAM"
             width={100}
             height={40}

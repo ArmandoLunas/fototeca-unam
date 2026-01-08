@@ -61,7 +61,7 @@ export default function TopBar({ section }: TopBarProps) {
   }, []);
 
   return (
-    <div className="w-full bg-[#caa357] text-white relative">
+    <div className="w-full bg-[#E03A3E] text-white relative">
       <div className="max-w-6xl mx-auto px-4">
         <div className="h-32 flex items-center justify-between">
           {/* IZQUIERDA: LOGO + SECCIÓN */}
@@ -217,7 +217,7 @@ export default function TopBar({ section }: TopBarProps) {
             {/* Imagen extra al extremo derecho */}
             <div className="hidden md:block">
               <Image
-                src="/LOGOFotoTeca.png"
+                src="/Blank.png"
                 alt="Logo extra"
                 width={150}
                 height={150}
