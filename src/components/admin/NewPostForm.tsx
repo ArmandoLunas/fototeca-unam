@@ -19,6 +19,9 @@ type Props = {
   defaultType: string;   // ej. "¿Sabías qué?"
   postId?: string;       // si existe -> editar
   initialTitle?: string;
+  initialNombres?: string;        // For Biografías
+  initialApellidoPaterno?: string; // For Biografías
+  initialApellidoMaterno?: string; // For Biografías
   initialBlocks?: InitialBlock[];
   initialFechaEfemeride?: string | null; // fecha manual para Efemérides
   section?: string;      // section slug for redirect
@@ -28,6 +31,9 @@ export default function NewPostForm({
   defaultType,
   postId,
   initialTitle,
+  initialNombres,
+  initialApellidoPaterno,
+  initialApellidoMaterno,
   initialBlocks,
   initialFechaEfemeride,
   section,
@@ -36,6 +42,9 @@ export default function NewPostForm({
   const [tipo] = useState(defaultType);
 
   const [titulo, setTitulo] = useState(initialTitle ?? '');
+  const [nombres, setNombres] = useState(initialNombres ?? '');
+  const [apellidoPaterno, setApellidoPaterno] = useState(initialApellidoPaterno ?? '');
+  const [apellidoMaterno, setApellidoMaterno] = useState(initialApellidoMaterno ?? '');
   const [fechaEfemeride, setFechaEfemeride] = useState(initialFechaEfemeride ?? '');
   const [bloques, setBloques] = useState<SectionBlock[]>([
     { id: crypto.randomUUID(), tituloSeccion: '', descripcion: '', existingImageUrls: [], imagenes: [] },
@@ -69,6 +78,12 @@ export default function NewPostForm({
       setFechaEfemeride(`${day}/${month}/${year}`);
     }
   }, [initialFechaEfemeride]);
+
+  useEffect(() => {
+    if (initialNombres) setNombres(initialNombres);
+    if (initialApellidoPaterno) setApellidoPaterno(initialApellidoPaterno);
+    if (initialApellidoMaterno) setApellidoMaterno(initialApellidoMaterno);
+  }, [initialNombres, initialApellidoPaterno, initialApellidoMaterno]);
 
   function addBloque() {
     setBloques(prev => [
@@ -141,7 +156,17 @@ export default function NewPostForm({
       const form = new FormData();
       if (postId) form.append('id', postId);
       form.append('tipo', tipo);      // 👈 se manda el tipo fijado
-      form.append('titulo', titulo);
+
+      // Handle Biografía name fields separately
+      if (tipo === 'Biografía') {
+        form.append('nombres', nombres);
+        form.append('apellidoPaterno', apellidoPaterno);
+        form.append('apellidoMaterno', apellidoMaterno);
+        // Construct titulo from name parts for backwards compatibility
+        form.append('titulo', `${nombres} ${apellidoPaterno} ${apellidoMaterno}`.trim());
+      } else {
+        form.append('titulo', titulo);
+      }
 
       // Solo agregar fechaEfemeride si el tipo es "Efeméride" y hay una fecha
       if (tipo === 'Efeméride' && fechaEfemeride) {
@@ -217,16 +242,50 @@ export default function NewPostForm({
           </div>
         </div>
 
-        {/* Título */}
-        <div className="grid gap-2">
-          <label className="text-sm text-neutral-400 font-medium">Título</label>
-          <input
-            className="rounded-md border text-neutral-800 border-neutral-300 px-3 py-2"
-            placeholder="Nombre, título de la exposición…"
-            value={titulo}
-            onChange={(e) => setTitulo(e.target.value)}
-          />
-        </div>
+        {/* Título or Name Fields (conditional based on tipo) */}
+        {tipo === 'Biografía' ? (
+          <>
+            <div className="grid gap-2">
+              <label className="text-sm text-neutral-400 font-medium">Nombres</label>
+              <input
+                className="rounded-md border text-neutral-800 border-neutral-300 px-3 py-2"
+                placeholder="Nombre(s) de pila"
+                value={nombres}
+                onChange={(e) => setNombres(e.target.value)}
+                required
+              />
+            </div>
+            <div className="grid gap-2">
+              <label className="text-sm text-neutral-400 font-medium">Apellido Paterno</label>
+              <input
+                className="rounded-md border text-neutral-800 border-neutral-300 px-3 py-2"
+                placeholder="Apellido paterno"
+                value={apellidoPaterno}
+                onChange={(e) => setApellidoPaterno(e.target.value)}
+                required
+              />
+            </div>
+            <div className="grid gap-2">
+              <label className="text-sm text-neutral-400 font-medium">Apellido Materno</label>
+              <input
+                className="rounded-md border text-neutral-800 border-neutral-300 px-3 py-2"
+                placeholder="Apellido materno (opcional)"
+                value={apellidoMaterno}
+                onChange={(e) => setApellidoMaterno(e.target.value)}
+              />
+            </div>
+          </>
+        ) : (
+          <div className="grid gap-2">
+            <label className="text-sm text-neutral-400 font-medium">Título</label>
+            <input
+              className="rounded-md border text-neutral-800 border-neutral-300 px-3 py-2"
+              placeholder="Nombre, título de la exposición…"
+              value={titulo}
+              onChange={(e) => setTitulo(e.target.value)}
+            />
+          </div>
+        )}
 
         {/* Fecha de Efeméride (solo para tipo Efeméride) */}
         {tipo === 'Efeméride' && (

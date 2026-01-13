@@ -48,6 +48,9 @@ export default async function EditPostPage({ params }: Props) {
         defaultType={post.tipo}
         postId={post.id}
         initialTitle={post.titulo}
+        initialNombres={post.nombres || ''}
+        initialApellidoPaterno={post.apellidoPaterno || ''}
+        initialApellidoMaterno={post.apellidoMaterno || ''}
         initialBlocks={initialBlocks}
         initialFechaEfemeride={post.fechaEfemeride?.toISOString().split('T')[0] || null}
         section={section}

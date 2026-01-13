@@ -21,22 +21,41 @@ export async function processChatQuery(userMessage: string) {
     const actionKeywords = ['dame', 'busca', 'ver', 'muestrame', 'encuentra', 'lista'];
     const actionFound = actionKeywords.find(w => lowerMsg.includes(w));
 
+    // 2.5. DETECT QUESTIONS (multiple signals)
+    const questionWords = [
+        'qué', 'que', 'cómo', 'como', 'cuándo', 'cuando',
+        'dónde', 'donde', 'quién', 'quien', 'cuál', 'cual',
+        'por qué', 'porque', 'para qué',
+        'sabes', 'conoces', 'tienes', 'hay', 'existe', 'puedes'
+    ];
+    const hasQuestionWord = questionWords.some(word => lowerMsg.includes(word));
+    const hasQuestionMark = lowerMsg.includes('?') || lowerMsg.includes('¿');
+    const isQuestion = hasQuestionMark || hasQuestionWord;
+
     // 3. SEARCH POSTS (always search, regardless of categories)
     const matchingPosts = await searchPosts(lowerMsg);
 
     // 4. VALIDATE INPUT
-    // If no categories AND no posts found, check if there's at least an action keyword
+    // If no categories AND no posts found, check if there's at least an action keyword or question
     if (detectedCategories.length === 0 && matchingPosts.length === 0) {
-        // If no action keyword either, provide helpful feedback
-        if (!actionFound && !lowerMsg.includes('?')) {
+        // If it's not a question and has no action keyword, provide helpful feedback
+        if (!isQuestion && !actionFound) {
             return {
-                reply: "Para buscar recursos o publicaciones, incluye una acción como: 'dame', 'busca', 'muéstrame', 'encuentra', o 'lista'.",
+                reply: "Para buscar recursos o publicaciones, incluye una acción como: 'dame', 'busca', 'muéstrame', 'encuentra', o 'lista'. También puedes hacer preguntas directamente.",
                 data: [],
                 posts: []
             };
         }
 
-        // Has action keyword but no matching categories or posts
+        // Is a question or has action keyword, but no matching content
+        if (isQuestion) {
+            return {
+                reply: "Entiendo tu pregunta, pero no encontré información específica sobre eso en nuestra base de datos. Intenta preguntar sobre efemérides, biografías, exposiciones, o recursos específicos de la Fototeca digital de la Facultad de Ingeniería.",
+                data: [],
+                posts: []
+            };
+        }
+
         return {
             reply: "No encontré recursos ni publicaciones que coincidan con tu búsqueda. ¿Podrías intentar con otras palabras clave?",
             data: [],
