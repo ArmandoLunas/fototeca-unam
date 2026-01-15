@@ -14,7 +14,12 @@ export default function LoginPage() {
 
   const params = useSearchParams();
   const router = useRouter();
-  const callbackUrl = params.get('callbackUrl') || '/admin';
+
+  const callbackUrlParam = params.get('callbackUrl');
+  const callbackUrl =
+    callbackUrlParam && callbackUrlParam.startsWith('/')
+      ? callbackUrlParam
+      : '/admin';
 
   useEffect(() => {
     const err = params.get('error');
@@ -42,32 +47,33 @@ export default function LoginPage() {
     <div
       className="min-h-screen flex flex-col"
       style={{
-        backgroundImage: "url('/tren-fi.jpeg')",
+        backgroundImage: "url('/fondo.jpeg')",
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }}
     >
-      {/* HEADER */}
-      <header className="w-full bg-black/60 text-white py-9 px-6 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Image
-            src="/fi-escudo-color.png"
-            alt="Logo Fototeca UNAM"
-            width={40}
-            height={40}
-            className="rounded"
-          />
-          <Image
-            src="/unam-escudo-color.png"
-            alt="Logo Fototeca UNAM"
-            width={40}
-            height={40}
-            className="rounded"
-          />
-          <h1 className="font-semibold tracking-wide">Fototeca UNAM</h1>
-        </div>
-        <span className="text-sm">Panel de administración</span>
-      </header>
+      {/* HEADER LOGIN  */}
+      <header className="w-full bg-[#E03A3E]/90 text-white py-4 shadow-md">
+  <div className="max-w-6xl mx-auto px-6 flex items-center justify-between">
+    
+    <div className="flex items-center gap-3">
+      <Image
+        src="/identidadesc.png"
+        alt="Logo Fototeca UNAM"
+        width={220}
+        height={120}
+        className="rounded"
+        priority
+      />
+    </div>
+
+    <span className="text-sm font-medium">
+      Panel de administración
+    </span>
+
+  </div>
+</header>
+
 
       {/* CONTENIDO */}
       <main className="flex-1 flex items-center justify-center px-4">
@@ -78,6 +84,7 @@ export default function LoginPage() {
           <h2 className="text-xl font-semibold mb-1 text-slate-900">
             Iniciar sesión
           </h2>
+
           <p className="text-sm text-slate-500 mb-4">
             Ingresa tus credenciales institucionales.
           </p>
@@ -88,23 +95,29 @@ export default function LoginPage() {
             </div>
           )}
 
-          <label className="block text-sm mb-1 text-slate-700">Email</label>
+          <label className="block text-sm mb-1 text-slate-700">
+            Email
+          </label>
           <input
             className="w-full border text-slate-800 rounded-md px-3 py-2 mb-3 text-sm focus:outline-none focus:ring-2 focus:ring-slate-200"
             type="email"
             value={email}
             placeholder="usuario@unam.mx"
             onChange={(e) => setEmail(e.target.value)}
+            disabled={loading}
             required
           />
 
-          <label className="block text-sm mb-1 text-slate-700">Password</label>
+          <label className="block text-sm mb-1 text-slate-700">
+            Password
+          </label>
           <input
             className="w-full border text-slate-800 rounded-md px-3 py-2 mb-4 text-sm focus:outline-none focus:ring-2 focus:ring-slate-200"
             type="password"
             value={password}
             placeholder="••••••••"
             onChange={(e) => setPassword(e.target.value)}
+            disabled={loading}
             required
           />
 
@@ -115,19 +128,23 @@ export default function LoginPage() {
           >
             {loading ? 'Ingresando…' : 'Entrar'}
           </button>
-          
+
           <p className="text-center text-sm mt-3">
             ¿No tienes cuenta?
-            <a href="/register" className="text-blue-700 underline ml-1">
+            <a
+              href="/register"
+              className="text-blue-700 underline ml-1"
+            >
               Crear cuenta
             </a>
           </p>
-
         </form>
       </main>
 
-     {/* FOOTER REUTILIZABLE */}
-      <Footer />
+      {/* FOOTER COMPACTO SOLO PARA LOGIN */}
+      <div className="py-3">
+        <Footer />
+      </div>
     </div>
   );
 }

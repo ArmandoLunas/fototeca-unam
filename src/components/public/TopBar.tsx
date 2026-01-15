@@ -74,25 +74,19 @@ export default function TopBar({ section }: TopBarProps) {
               className="flex items-center"
             >
               <Image
-                src="/escudoFIblanco.png"
+                src="/identidadesc.png"
                 alt="Escudo FI UNAM"
-                width={100}
-                height={100}
+                width={290}
+                height={260}
               />
             </Link>
 
             {/* Logo completo de la Fototeca como imagen → home */}
             <Link
-              href="/home" // ajusta si tu home es otra ruta
+              href="/home" 
               className="flex items-center"
             >
-              <Image
-                src="/Fototeca.png" 
-                alt="Fototeca digital de la Facultad de Ingeniería"
-                width={260}  // ajusta según el tamaño de tu imagen
-                height={80}
-                priority
-              />
+              
             </Link>
 
             {/* Nombre de sección (si aplica) */}
@@ -211,16 +205,19 @@ export default function TopBar({ section }: TopBarProps) {
               </div>
             )}
 
-            {/* Imagen extra al extremo derecho */}
+                      {/* Imagen extra al extremo derecho */}
             <div className="hidden md:block">
               <Image
-                src="/LOGOFotoTeca.png"
+                src="/Logo.png"
                 alt="Logo extra"
                 width={150}
                 height={150}
                 className="rounded-full"
               />
             </div>
+
+            {/* Imagen extra al extremo derecho (si la quieres seguir usando) */}
+            
           </div>
         </div>
 
